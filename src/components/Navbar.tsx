@@ -1,72 +1,582 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, Menu, X } from 'lucide-react'
+import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function Navbar() {
   const itemCount = useCartStore(state => state.itemCount)
+  const items = useCartStore(state => state.items)
+  const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [cartPreview, setCartPreview] = useState(false)
+  const pathname = usePathname()
+  const dropdownTimer = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => { setMenuOpen(false); setActiveDropdown(null) }, [pathname])
+
+  const openDropdown = (key: string) => {
+    if (dropdownTimer.current) {
+      clearTimeout(dropdownTimer.current)
+    }
+    setActiveDropdown(key)
+  }
+  const closeDropdown = () => {
+    dropdownTimer.current = setTimeout(() => setActiveDropdown(null), 120)
+  }
+
+  const categories = [
+    {
+      key: 'tech',
+      label: 'Tecnología',
+      href: '/productos?cat=tech',
+      icon: <Zap size={14} />,
+      color: '#EFF6FF',
+      items: ['Enchufes WiFi', 'Tiras LED Smart', 'Soportes Laptop', 'Organizadores'],
+    },
+    {
+      key: 'mascotas',
+      label: 'Mascotas',
+      href: '/productos?cat=mascotas',
+      icon: <PawPrint size={14} />,
+      color: '#FFF7ED',
+      items: ['Bebederos', 'Camas térmicas', 'Cepillos', 'Juguetes'],
+    },
+  ]
 
   return (
     <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400&display=swap');`}</style>
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(250,250,248,0.92)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #e8e6e1',
-        fontFamily: 'DM Sans, sans-serif'
+      <style>{`
+        .nav-link {
+          position: relative;
+          text-decoration: none;
+          font-size: 13.5px;
+          font-weight: 500;
+          color: #7A7269;
+          padding: 8px 12px;
+          border-radius: 8px;
+          transition: color 0.2s ease, background 0.2s ease;
+          white-space: nowrap;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .nav-link:hover { color: #080808; background: #F7F6F4; }
+        .nav-link.active { color: #080808; }
+
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: 4px; left: 12px; right: 12px;
+          height: 1.5px;
+          background: #2563EB;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+        }
+        .nav-link.active::after,
+        .nav-link:hover::after { transform: scaleX(1); }
+
+        .dropdown {
+          position: absolute;
+          top: calc(100% + 12px);
+          left: 50%;
+          transform: translateX(-50%);
+          min-width: 280px;
+          background: #FAFAF8;
+          border: 1px solid #E2DED8;
+          border-radius: 20px;
+          padding: 20px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.04);
+          animation: dropIn 0.2s cubic-bezier(0.16,1,0.3,1) both;
+          z-index: 200;
+        }
+        @keyframes dropIn {
+          from { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.97); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+        }
+
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 9px 12px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #5C554E;
+          text-decoration: none;
+          transition: all 0.15s ease;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .dropdown-item:hover { background: #F7F6F4; color: #080808; padding-left: 16px; }
+
+        .cart-btn {
+          position: relative;
+          display: flex; align-items: center; justify-content: center;
+          width: 40px; height: 40px;
+          border-radius: 50%;
+          text-decoration: none;
+          color: #080808;
+          transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .cart-btn:hover { background: #F7F6F4; transform: scale(1.05); }
+
+        .badge {
+          position: absolute;
+          top: 2px; right: 2px;
+          background: #2563EB;
+          color: #fff;
+          font-size: 9px;
+          font-weight: 700;
+          min-width: 16px;
+          height: 16px;
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          padding: 0 4px;
+          border: 2px solid #FAFAF8;
+          font-family: 'DM Mono', monospace;
+          animation: badgePop 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes badgePop {
+          0%   { transform: scale(0); }
+          60%  { transform: scale(1.3); }
+          100% { transform: scale(1); }
+        }
+
+        .cart-preview {
+          position: absolute;
+          top: calc(100% + 12px);
+          right: 0;
+          width: 320px;
+          background: #FAFAF8;
+          border: 1px solid #E2DED8;
+          border-radius: 20px;
+          padding: 20px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.10);
+          animation: dropIn 0.2s cubic-bezier(0.16,1,0.3,1) both;
+          z-index: 200;
+        }
+
+        .mobile-menu {
+          border-top: 1px solid #E2DED8;
+          background: #FAFAF8;
+          padding: 16px 20px 28px;
+          display: flex; flex-direction: column; gap: 2px;
+          animation: slideDown 0.25s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .mobile-link {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 13px 16px;
+          border-radius: 12px;
+          font-size: 15px; font-weight: 500;
+          color: #3E3A35;
+          text-decoration: none;
+          transition: background 0.15s ease;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .mobile-link:hover { background: #F7F6F4; }
+
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-toggle { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-toggle { display: none !important; }
+        }
+      `}</style>
+
+      {/* ── ANNOUNCEMENT BAR ── */}
+      <div style={{
+        background: '#080808',
+        color: '#fff',
+        height: '36px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        position: 'relative',
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 48px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '48px',
+          animation: 'marqueeAnnounce 32s linear infinite',
+          whiteSpace: 'nowrap',
+        }}>
+          {[
+            '✦ Envíos a todo el Perú',
+            '✦ Pago con Yape y tarjeta',
+            '✦ Garantía 30 días',
+            '✦ Soporte por WhatsApp 24/7',
+            '✦ Envíos en 2-3 días en Lima',
+            '✦ Envíos a todo el Perú',
+            '✦ Pago con Yape y tarjeta',
+            '✦ Garantía 30 días',
+            '✦ Soporte por WhatsApp 24/7',
+            '✦ Envíos en 2-3 días en Lima',
+          ].map((text, i) => (
+            <span key={i} style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              color: i % 2 === 0 ? '#fff' : '#A09890',
+            }}>{text}</span>
+          ))}
+        </div>
+        <style>{`
+          @keyframes marqueeAnnounce {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+          }
+        `}</style>
+      </div>
+
+      {/* ── MAIN NAV ── */}
+      <nav style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: scrolled ? 'rgba(250,250,248,0.97)' : 'rgba(250,250,248,0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: `1px solid ${scrolled ? '#E2DED8' : 'transparent'}`,
+        transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)',
+        boxShadow: scrolled ? '0 1px 0 rgba(0,0,0,0.04)' : 'none',
+      }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '0 48px',
+          height: '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '24px',
+        }}>
 
           {/* LOGO */}
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: '28px', letterSpacing: '0.02em', color: '#080808' }}>
-              VIDA<span style={{ color: '#2563eb' }}>SMART</span>
+          <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '24px',
+                letterSpacing: '0.03em',
+                color: '#080808',
+                lineHeight: 1,
+              }}>VIDA</span>
+              <span style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '24px',
+                letterSpacing: '0.03em',
+                color: '#2563EB',
+                lineHeight: 1,
+              }}>SMART</span>
+              <div style={{
+                marginLeft: '8px',
+                background: '#EFF6FF',
+                border: '1px solid #DBEAFE',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '9px',
+                letterSpacing: '0.08em',
+                color: '#2563EB',
+                fontWeight: 500,
+              }}>PERÚ</div>
             </div>
           </Link>
 
           {/* NAV LINKS — Desktop */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            {[
-              { label: 'Productos', href: '/productos' },
-              { label: 'Tecnología', href: '/productos?cat=tech' },
-              { label: 'Mascotas', href: '/productos?cat=mascotas' },
-            ].map(link => (
-              <Link key={link.label} href={link.href} style={{
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 500,
-                color: '#6b6760',
-                transition: 'color 0.2s',
-                fontFamily: 'DM Sans, sans-serif'
-              }}
-                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#080808'}
-                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#6b6760'}
-              >{link.label}</Link>
+          <div className="desktop-nav" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px',
+            flex: 1,
+            justifyContent: 'center',
+          }}>
+            <Link href="/productos" className={`nav-link ${pathname === '/productos' ? 'active' : ''}`}>
+              Todos
+            </Link>
+
+            {categories.map(cat => (
+              <div
+                key={cat.key}
+                style={{ position: 'relative' }}
+                onMouseEnter={() => openDropdown(cat.key)}
+                onMouseLeave={closeDropdown}
+              >
+                <Link
+                  href={cat.href}
+                  className={`nav-link ${pathname?.includes(`cat=${cat.key}`) ? 'active' : ''}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  {cat.label}
+                  <span style={{
+                    display: 'inline-block',
+                    transform: activeDropdown === cat.key ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                    opacity: 0.5,
+                  }}>
+                    <ChevronRight size={12} />
+                  </span>
+                </Link>
+
+                {activeDropdown === cat.key && (
+                  <div
+                    className="dropdown"
+                    onMouseEnter={() => openDropdown(cat.key)}
+                    onMouseLeave={closeDropdown}
+                  >
+                    {/* Dropdown header */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '10px 12px',
+                      background: cat.color,
+                      borderRadius: '12px',
+                      marginBottom: '12px',
+                    }}>
+                      <span style={{ color: cat.key === 'tech' ? '#2563EB' : '#D97706' }}>{cat.icon}</span>
+                      <span style={{
+                        fontFamily: "'Bebas Neue', sans-serif",
+                        fontSize: '18px',
+                        letterSpacing: '0.03em',
+                        color: '#080808',
+                      }}>{cat.label.toUpperCase()}</span>
+                    </div>
+
+                    {cat.items.map(item => (
+                      <Link
+                        key={item}
+                        href={cat.href}
+                        className="dropdown-item"
+                      >
+                        <span style={{
+                          width: '6px', height: '6px',
+                          borderRadius: '50%',
+                          background: cat.key === 'tech' ? '#2563EB' : '#D97706',
+                          flexShrink: 0,
+                        }} />
+                        {item}
+                      </Link>
+                    ))}
+
+                    <div style={{
+                      marginTop: '12px',
+                      paddingTop: '12px',
+                      borderTop: '1px solid #E2DED8',
+                    }}>
+                      <Link href={cat.href} style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '9px 12px',
+                        borderRadius: '10px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: cat.key === 'tech' ? '#2563EB' : '#D97706',
+                        textDecoration: 'none',
+                        fontFamily: "'DM Mono', monospace",
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                        transition: 'background 0.15s',
+                      }}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F7F6F4'}
+                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+                      >
+                        Ver toda la colección
+                        <ChevronRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
-          {/* CARRITO */}
-          <Link href="/carrito" style={{ position: 'relative', textDecoration: 'none', color: '#080808', padding: '8px' }}>
-            <ShoppingCart size={22} />
-            {itemCount() > 0 && (
-              <div style={{
-                position: 'absolute', top: 0, right: 0,
-                background: '#2563eb', color: '#fff',
-                fontSize: '10px', fontWeight: 700,
-                width: '18px', height: '18px',
+          {/* ACTIONS */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+
+            {/* CART */}
+            <div
+              style={{ position: 'relative' }}
+              onMouseEnter={() => { if (itemCount() > 0) setCartPreview(true) }}
+              onMouseLeave={() => setCartPreview(false)}
+            >
+              <Link href="/carrito" className="cart-btn">
+                <ShoppingCart size={19} strokeWidth={1.8} />
+                {itemCount() > 0 && (
+                  <div className="badge" key={itemCount()}>
+                    {itemCount() > 9 ? '9+' : itemCount()}
+                  </div>
+                )}
+              </Link>
+
+              {/* Cart mini preview */}
+              {cartPreview && itemCount() > 0 && (
+                <div className="cart-preview">
+                  <p style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '10px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#A09890',
+                    marginBottom: '12px',
+                  }}>{itemCount()} {itemCount() === 1 ? 'producto' : 'productos'}</p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                    {items.slice(0, 3).map(item => (
+                      <div key={item.id} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <div style={{
+                          width: '40px', height: '40px',
+                          background: '#F7F6F4',
+                          borderRadius: '8px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '18px', flexShrink: 0,
+                        }}>
+                          {item.slug?.includes('mascota') || item.slug?.includes('bebedero') || item.slug?.includes('cama') || item.slug?.includes('cepillo') || item.slug?.includes('juguete') ? '🐾' : '⚡'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{
+                            fontSize: '12px', fontWeight: 600,
+                            color: '#080808',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          }}>{item.name}</p>
+                          <p style={{ fontSize: '11px', color: '#A09890' }}>
+                            x{item.quantity} · S/{(item.price * item.quantity).toFixed(0)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {items.length > 3 && (
+                      <p style={{ fontSize: '11px', color: '#A09890', fontFamily: "'DM Mono', monospace", letterSpacing: '0.06em' }}>
+                        +{items.length - 3} más...
+                      </p>
+                    )}
+                  </div>
+
+                  <Link href="/carrito" style={{
+                    display: 'block', textAlign: 'center',
+                    background: '#080808', color: '#fff',
+                    padding: '12px', borderRadius: '100px',
+                    textDecoration: 'none',
+                    fontSize: '13px', fontWeight: 700,
+                    fontFamily: "'DM Sans', sans-serif",
+                    transition: 'background 0.2s',
+                  }}
+                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#2563EB'}
+                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = '#080808'}
+                  >
+                    Ver carrito →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* CTA BUTTON */}
+            <Link href="/productos" style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: '#080808',
+              color: '#fff',
+              padding: '9px 18px',
+              borderRadius: '100px',
+              textDecoration: 'none',
+              fontSize: '13px',
+              fontWeight: 600,
+              fontFamily: "'DM Sans', sans-serif",
+              transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+              marginLeft: '8px',
+            }}
+              className="desktop-nav"
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = '#2563EB'
+                ;(e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.03)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = '#080808'
+                ;(e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)'
+              }}
+            >
+              Comprar
+              <ChevronRight size={13} />
+            </Link>
+
+            {/* Mobile toggle */}
+            <button
+              className="mobile-toggle"
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{
+                width: '40px', height: '40px',
                 borderRadius: '50%',
+                border: 'none',
+                background: menuOpen ? '#F7F6F4' : 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'DM Mono'
-              }}>
-                {itemCount()}
-              </div>
-            )}
-          </Link>
+                color: '#080808',
+                transition: 'background 0.2s',
+              }}
+              aria-label="Menú"
+            >
+              {menuOpen
+                ? <X size={18} strokeWidth={2} />
+                : <Menu size={18} strokeWidth={1.8} />}
+            </button>
+          </div>
         </div>
+
+        {/* ── MOBILE MENU ── */}
+        {menuOpen && (
+          <div className="mobile-menu">
+            <Link href="/productos" className="mobile-link">
+              Todos los productos
+              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+            </Link>
+            <Link href="/productos?cat=tech" className="mobile-link">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  width: '28px', height: '28px',
+                  background: '#EFF6FF', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Zap size={13} color="#2563EB" />
+                </span>
+                Tecnología
+              </span>
+              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+            </Link>
+            <Link href="/productos?cat=mascotas" className="mobile-link">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  width: '28px', height: '28px',
+                  background: '#FFF7ED', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <PawPrint size={13} color="#D97706" />
+                </span>
+                Mascotas
+              </span>
+              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+            </Link>
+
+            <div style={{ height: '1px', background: '#E2DED8', margin: '8px 0' }} />
+
+            <Link href="/carrito" className="mobile-link" style={{ color: '#2563EB' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShoppingCart size={16} />
+                Carrito {itemCount() > 0 && `(${itemCount()})`}
+              </span>
+              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+            </Link>
+          </div>
+        )}
       </nav>
     </>
   )
