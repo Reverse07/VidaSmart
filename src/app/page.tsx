@@ -1,6 +1,5 @@
 import Hero            from '@/components/home/Hero'
 import CategorySplit   from '@/components/home/CategorySplit'
-import FeaturedProducts from '@/components/home/FeaturedProducts'
 import ProblemSolution from '@/components/home/ProblemSolution'
 import FeaturedProduct from '@/components/home/FeaturedProduct'
 import Testimonials    from '@/components/home/Testimonials'
@@ -12,7 +11,6 @@ export default function HomePage() {
     <div>
       <Hero />
       <CategorySplit />
-      <FeaturedProduct />
       <ProblemSolution />
       <FeaturedProduct />
       <Testimonials />
