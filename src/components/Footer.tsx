@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 export default function Footer() {
@@ -6,7 +8,6 @@ export default function Footer() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;700&family=DM+Mono:wght@400&display=swap');`}</style>
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '64px 48px 48px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '48px' }}>
 
-        {/* Brand */}
         <div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '32px', marginBottom: '12px' }}>
             VIDA<span style={{ color: '#2563eb' }}>SMART</span>
@@ -20,7 +21,6 @@ export default function Footer() {
           </a>
         </div>
 
-        {/* Tienda */}
         <div>
           <div style={{ fontFamily: 'DM Mono', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0aca4', marginBottom: '16px' }}>Tienda</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -29,15 +29,11 @@ export default function Footer() {
               { label: 'Tecnología', href: '/productos?cat=tech' },
               { label: 'Mascotas', href: '/productos?cat=mascotas' },
             ].map(l => (
-              <Link key={l.label} href={l.href} style={{ textDecoration: 'none', fontSize: '13px', color: '#6b6760' }}
-                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#080808'}
-                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#6b6760'}
-              >{l.label}</Link>
+              <Link key={l.label} href={l.href} style={{ textDecoration: 'none', fontSize: '13px', color: '#6b6760' }}>{l.label}</Link>
             ))}
           </div>
         </div>
 
-        {/* Ayuda */}
         <div>
           <div style={{ fontFamily: 'DM Mono', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0aca4', marginBottom: '16px' }}>Ayuda</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -51,7 +47,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Contacto */}
         <div>
           <div style={{ fontFamily: 'DM Mono', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0aca4', marginBottom: '16px' }}>Contacto</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#6b6760' }}>
@@ -62,7 +57,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px 48px', borderTop: '1px solid #e8e6e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <span style={{ fontFamily: 'DM Mono', fontSize: '11px', color: '#b0aca4' }}>
           © 2026 VidaSmart · Lima, Perú
