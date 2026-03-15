@@ -23,27 +23,34 @@ export default function CheckoutPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleMP = async () => {
-    setLoading(true)
-    try {
-      const orden_id = `VS-${Date.now()}`
-      const res = await fetch('/api/crear-preferencia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, email: form.email, orden_id })
+const handleMP = async () => {
+  setLoading(true)
+  try {
+    const res = await fetch('/api/crear-preferencia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items,
+        email: form.email,
+        nombre: form.nombre,
+        telefono: form.telefono,
+        direccion: form.direccion,
+        ciudad: form.ciudad,
+        referencia: form.referencia,
       })
-      const data = await res.json()
-      if (data.init_point) {
-        clearCart()
-        window.location.href = data.init_point
-      }
-    } catch (err) {
-      console.error(err)
-      alert('Error procesando pago. Intenta de nuevo.')
-    } finally {
-      setLoading(false)
+    })
+    const data = await res.json()
+    if (data.init_point) {
+      clearCart()
+      window.location.href = data.init_point
     }
+  } catch (err) {
+    console.error(err)
+    alert('Error procesando pago. Intenta de nuevo.')
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleYape = async () => {
     setLoading(true)
