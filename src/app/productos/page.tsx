@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Zap, PawPrint, Plus } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useCartStore } from '@/store/cartStore'
 
 interface Product {
   id: string
@@ -22,6 +23,7 @@ function Catalogo() {
   const cat = searchParams.get('cat')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const addItem = useCartStore(state => state.addItem)
 
   useEffect(() => {
     async function fetchProducts() {
@@ -114,8 +116,25 @@ function Catalogo() {
                     <span style={{ fontFamily: 'Bebas Neue', fontSize: '28px' }}>S/{p.price / 100}</span>
                     {p.compare_price && <span style={{ fontSize: '12px', color: '#b0aca4', textDecoration: 'line-through' }}>S/{p.compare_price / 100}</span>}
                   </div>
-                  <div style={{ background: '#080808', color: '#fff', borderRadius: '100px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Plus size={12} /> Ver
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        addItem({
+                          id: p.id,
+                          name: p.name,
+                          price: p.price / 100,
+                          image: '',
+                          quantity: 1,
+                          slug: p.slug,
+                        })
+                      }}
+                      style={{ background: '#2563eb', color: '#fff', borderRadius: '100px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', border: 'none', cursor: 'pointer' }}>
+                      <Plus size={12} /> Agregar
+                    </button>
+                    <div style={{ background: '#080808', color: '#fff', borderRadius: '100px', padding: '8px 14px', fontSize: '12px', fontWeight: 600 }}>
+                      Ver
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,87 +1,63 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import React from 'react'
 import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus } from 'lucide-react'
 import Link from 'next/link'
-
-const PRODUCTOS_MOCK: Record<string, any> = {
-  'enchufe-wifi-inteligente': {
-    name: 'Enchufe WiFi Inteligente',
-    price: 69, compare_price: 99, category: 'tech',
-    description: 'Controla cualquier aparato eléctrico desde tu celular. Compatible con Alexa y Google Home.',
-    benefits: ['Control remoto desde cualquier lugar', 'Compatible con Alexa y Google Home', 'Programa horarios automáticos', 'Monitorea consumo eléctrico', 'Instalación en 2 minutos'],
-    specs: [{ label: 'Voltaje', value: '220V / 60Hz' }, { label: 'Potencia máx.', value: '3500W' }, { label: 'Conectividad', value: 'WiFi 2.4GHz' }, { label: 'Garantía', value: '12 meses' }],
-    reviews: [{ name: 'Valeria M.', city: 'Lima', rating: 5, text: 'Lo configuré en 5 minutos. Funciona perfecto con Alexa.' }],
-    faq: [{ q: '¿Funciona con cualquier aparato?', a: 'Sí, con cualquier aparato hasta 3500W.' }, { q: '¿Viene con garantía?', a: '12 meses de garantía + 30 días devolución.' }]
-  },
-  'tira-led-rgb-smart': {
-    name: 'Tira LED RGB Smart 3m', price: 99, compare_price: 139, category: 'tech',
-    description: 'Transforma cualquier espacio con millones de colores. Control por app y voz.',
-    benefits: ['16 millones de colores', 'Control por app y Alexa', 'Corte y extensión fácil', 'Adhesivo 3M incluido'],
-    specs: [{ label: 'Longitud', value: '3 metros' }, { label: 'Conectividad', value: 'WiFi 2.4GHz' }, { label: 'Voltaje', value: '12V DC' }],
-    reviews: [], faq: []
-  },
-  'soporte-laptop-ergonomico': {
-    name: 'Soporte Laptop Ergonómico', price: 99, compare_price: 139, category: 'tech',
-    description: 'Mejora tu postura trabajando desde casa. Plegable y portátil.',
-    benefits: ['Mejora la postura', 'Plegable y portátil', 'Compatible con laptops 10-17"', 'Aluminio premium'],
-    specs: [{ label: 'Material', value: 'Aluminio' }, { label: 'Compatibilidad', value: '10-17 pulgadas' }, { label: 'Peso', value: '350g' }],
-    reviews: [], faq: []
-  },
-  'organizador-cables-premium': {
-    name: 'Organizador Cables Premium', price: 59, compare_price: 79, category: 'tech',
-    description: 'Orden instantáneo en tu escritorio. Sin más cables enredados.',
-    benefits: ['Instalación en 2 minutos', 'Adhesivo 3M incluido', 'Compatible con todos los cables', 'Diseño minimalista'],
-    specs: [{ label: 'Material', value: 'Silicona premium' }, { label: 'Capacidad', value: '6 cables' }],
-    reviews: [], faq: []
-  },
-  'bebedero-portatil': {
-    name: 'Bebedero Portátil Anti-Derrame', price: 49, compare_price: 69, category: 'mascotas',
-    description: 'Hidratación para tu mascota en cualquier lugar. Anti-derrame garantizado.',
-    benefits: ['Anti-derrame 100%', 'Capacidad 350ml', 'Fácil de limpiar', 'Botón de un solo toque'],
-    specs: [{ label: 'Capacidad', value: '350ml' }, { label: 'Material', value: 'BPA Free' }, { label: 'Peso', value: '120g' }],
-    reviews: [], faq: []
-  },
-  'cama-plegable-termica': {
-    name: 'Cama Plegable Térmica', price: 89, compare_price: 119, category: 'mascotas',
-    description: 'Confort máximo para tu mascota. Térmica, lavable y plegable.',
-    benefits: ['Relleno térmico premium', 'Lavable a máquina', 'Plegable para viajes', 'Antideslizante'],
-    specs: [{ label: 'Talla', value: 'M: 60x50cm / L: 80x65cm' }, { label: 'Material', value: 'Polar + Oxford' }],
-    reviews: [], faq: []
-  },
-  'cepillo-auto-limpiante': {
-    name: 'Cepillo Auto-Limpiante', price: 69, compare_price: 89, category: 'mascotas',
-    description: 'Limpia el cepillo en 1 segundo. Sin ensuciar tus manos.',
-    benefits: ['Auto-limpiante en 1 segundo', 'Cerdas de acero inoxidable', 'Mango ergonómico', 'Para pelo largo y corto'],
-    specs: [{ label: 'Material cerdas', value: 'Acero inoxidable' }, { label: 'Tipo pelo', value: 'Corto y largo' }],
-    reviews: [], faq: []
-  },
-  'juguete-interactivo': {
-    name: 'Juguete Interactivo Inteligente', price: 79, compare_price: 99, category: 'mascotas',
-    description: 'Entretenimiento y ejercicio para tu mascota mientras trabajas.',
-    benefits: ['Movimiento automático', 'Temporizador programable', 'Silencioso', 'Compatible con perros y gatos'],
-    specs: [{ label: 'Batería', value: 'USB recargable' }, { label: 'Autonomía', value: '4-6 horas' }],
-    reviews: [], faq: []
-  },
-}
-
-const DEFAULT_PRODUCT = {
-  name: 'Producto VidaSmart', price: 69, compare_price: 99, category: 'tech',
-  description: 'Producto de alta calidad para tu vida inteligente.',
-  benefits: ['Alta calidad', 'Fácil uso', 'Garantía incluida'],
-  specs: [{ label: 'Garantía', value: '12 meses' }],
-  reviews: [], faq: []
-}
+import { useCartStore } from '@/store/cartStore'
+import { supabase } from '@/lib/supabase'
 
 export default function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
   const [qty, setQty] = useState(1)
   const [activeTab, setActiveTab] = useState<'specs' | 'reviews' | 'faq'>('specs')
   const [added, setAdded] = useState(false)
+  const [product, setProduct] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const addItem = useCartStore(state => state.addItem)
 
-  const product = PRODUCTOS_MOCK[slug] ?? DEFAULT_PRODUCT
-  const discount = Math.round((1 - product.price / product.compare_price) * 100)
+  useEffect(() => {
+    async function fetchProduct() {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+      setProduct(data)
+      setLoading(false)
+    }
+    fetchProduct()
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div style={{ padding: '80px 48px', fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760', letterSpacing: '0.1em' }}>
+        CARGANDO...
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div style={{ padding: '80px 48px', fontFamily: 'DM Sans, sans-serif', textAlign: 'center' }}>
+        <p style={{ color: '#6b6760' }}>Producto no encontrado.</p>
+        <Link href="/productos" style={{ color: '#2563eb' }}>Volver al catálogo</Link>
+      </div>
+    )
+  }
+
+  const discount = product.compare_price
+    ? Math.round((1 - product.price / product.compare_price) * 100)
+    : 0
+
+  // Specs, benefits, faq vienen del campo description por ahora
+  // En el futuro se pueden agregar columnas a la tabla
+  const benefits = [
+    'Alta calidad premium',
+    'Garantía 30 días',
+    'Envío a todo Perú',
+    'Soporte por WhatsApp',
+  ]
 
   return (
     <>
@@ -99,8 +75,14 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           {/* IMAGEN */}
           <div style={{ position: 'sticky', top: '100px' }}>
             <div style={{ background: product.category === 'tech' ? '#f0f4ff' : '#fff7ed', borderRadius: '32px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '12px' }}>
-              <span style={{ fontSize: '120px' }}>{product.category === 'tech' ? '⚡' : '🐾'}</span>
-              <div style={{ position: 'absolute', top: '20px', left: '20px', background: '#2563eb', color: '#fff', fontFamily: 'DM Mono', fontSize: '11px', padding: '6px 12px', borderRadius: '100px' }}>-{discount}%</div>
+              {product.images?.[0] ? (
+                <img src={product.images[0]} alt={product.name} style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: '120px' }}>{product.category === 'tech' ? '⚡' : '🐾'}</span>
+              )}
+              {discount > 0 && (
+                <div style={{ position: 'absolute', top: '20px', left: '20px', background: '#2563eb', color: '#fff', fontFamily: 'DM Mono', fontSize: '11px', padding: '6px 12px', borderRadius: '100px' }}>-{discount}%</div>
+              )}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px' }}>
               {[...Array(4)].map((_, i) => (
@@ -117,7 +99,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               <span style={{ fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#2563eb' }}>{product.category}</span>
               <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
                 {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />)}
-                <span style={{ fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760', marginLeft: '6px' }}>4.9 (24 reseñas)</span>
+                <span style={{ fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760', marginLeft: '6px' }}>4.9</span>
               </div>
             </div>
 
@@ -125,18 +107,30 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               {product.name.toUpperCase()}
             </div>
 
-            <p style={{ fontSize: '15px', fontWeight: 300, lineHeight: 1.7, color: '#6b6760', marginBottom: '32px' }}>{product.description}</p>
+            <p style={{ fontSize: '15px', fontWeight: 300, lineHeight: 1.7, color: '#6b6760', marginBottom: '32px' }}>
+              {product.description}
+            </p>
 
+            {/* PRECIO */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', padding: '24px 0', borderTop: '1px solid #e8e6e1', borderBottom: '1px solid #e8e6e1', marginBottom: '32px' }}>
-              <span style={{ fontFamily: 'Bebas Neue', fontSize: '72px', lineHeight: 1 }}>S/{product.price}</span>
-              <div>
-                <div style={{ fontSize: '16px', color: '#b0aca4', textDecoration: 'line-through' }}>S/{product.compare_price}</div>
-                <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>Ahorras S/{product.compare_price - product.price}</div>
-              </div>
+              <span style={{ fontFamily: 'Bebas Neue', fontSize: '72px', lineHeight: 1 }}>
+                S/{product.price / 100}
+              </span>
+              {product.compare_price && (
+                <div>
+                  <div style={{ fontSize: '16px', color: '#b0aca4', textDecoration: 'line-through' }}>
+                    S/{product.compare_price / 100}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>
+                    Ahorras S/{(product.compare_price - product.price) / 100}
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* BENEFICIOS */}
             <ul style={{ listStyle: 'none', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {product.benefits.map((b: string) => (
+              {benefits.map((b: string) => (
                 <li key={b} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px' }}>
                   <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#dcfce7', border: '1px solid #86efac', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Check size={10} color="#16a34a" />
@@ -146,6 +140,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               ))}
             </ul>
 
+            {/* CANTIDAD + AGREGAR */}
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f2f1ef', borderRadius: '100px', padding: '6px 16px' }}>
                 <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #e8e6e1', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -157,13 +152,25 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 </button>
               </div>
               <button
-                onClick={() => { setAdded(true); setTimeout(() => setAdded(false), 2000) }}
+                onClick={() => {
+                  addItem({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price / 100,
+                    image: product.images?.[0] ?? '',
+                    quantity: qty,
+                    slug: product.slug,
+                  })
+                  setAdded(true)
+                  setTimeout(() => setAdded(false), 2000)
+                }}
                 style={{ flex: 1, background: added ? '#16a34a' : '#080808', color: '#fff', border: 'none', borderRadius: '100px', padding: '18px 32px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'DM Sans, sans-serif', transition: 'background 0.3s' }}
               >
-                {added ? <><Check size={16} /> Agregado</> : <>Agregar — S/{product.price * qty}</>}
+                {added ? <><Check size={16} /> Agregado al carrito</> : <>Agregar — S/{(product.price / 100) * qty}</>}
               </button>
             </div>
 
+            {/* YAPE */}
             <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
               <span style={{ fontSize: '24px' }}>📱</span>
               <div>
@@ -172,6 +179,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               </div>
             </div>
 
+            {/* TRUST */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
               {[{ icon: <Shield size={14} />, text: 'Pago seguro' }, { icon: <Truck size={14} />, text: 'Envío Perú' }, { icon: <Headphones size={14} />, text: 'WhatsApp' }].map(t => (
                 <div key={t.text} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f2f1ef', borderRadius: '12px', padding: '12px', fontSize: '12px', fontWeight: 500, color: '#6b6760' }}>
@@ -194,7 +202,13 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
           {activeTab === 'specs' && (
             <div style={{ maxWidth: '600px' }}>
-              {product.specs.map((s: any) => (
+              {[
+                { label: 'Categoría', value: product.category },
+                { label: 'Stock', value: `${product.stock} unidades` },
+                { label: 'Peso', value: product.weight_grams ? `${product.weight_grams}g` : 'N/A' },
+                { label: 'Proveedor', value: product.supplier },
+                { label: 'Garantía', value: '12 meses' },
+              ].map((s: any) => (
                 <div key={s.label} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '16px 0', borderBottom: '1px solid #e8e6e1' }}>
                   <span style={{ fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b6760' }}>{s.label}</span>
                   <span style={{ fontWeight: 600 }}>{s.value}</span>
@@ -204,23 +218,18 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           )}
 
           {activeTab === 'reviews' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '16px' }}>
-              {product.reviews.length === 0
-                ? <p style={{ color: '#6b6760', fontFamily: 'DM Mono', fontSize: '12px' }}>Aún no hay reseñas.</p>
-                : product.reviews.map((r: any) => (
-                  <div key={r.name} style={{ background: '#f2f1ef', borderRadius: '20px', padding: '24px', border: '1px solid #e8e6e1' }}>
-                    <div style={{ display: 'flex', gap: '2px', marginBottom: '12px' }}>{[...Array(r.rating)].map((_, i) => <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />)}</div>
-                    <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '16px' }}>"{r.text}"</p>
-                    <div style={{ fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760' }}>{r.name} · {r.city}</div>
-                  </div>
-                ))
-              }
-            </div>
+            <p style={{ color: '#6b6760', fontFamily: 'DM Mono', fontSize: '12px' }}>
+              Aún no hay reseñas. ¡Sé el primero en opinar!
+            </p>
           )}
 
           {activeTab === 'faq' && (
             <div style={{ maxWidth: '700px' }}>
-              {product.faq.map((f: any) => (
+              {[
+                { q: '¿Cuánto demora el envío?', a: 'Lima 2-3 días hábiles. Provincias 5-7 días hábiles.' },
+                { q: '¿Puedo devolver el producto?', a: '30 días de garantía de devolución sin preguntas.' },
+                { q: '¿Cómo pago con Yape?', a: 'Selecciona Yape en el checkout y te enviamos el QR por WhatsApp.' },
+              ].map((f: any) => (
                 <div key={f.q} style={{ padding: '24px 0', borderBottom: '1px solid #e8e6e1' }}>
                   <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>{f.q}</div>
                   <div style={{ fontSize: '14px', lineHeight: 1.6, color: '#6b6760' }}>{f.a}</div>

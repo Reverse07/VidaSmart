@@ -1,42 +1,73 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, Menu } from 'lucide-react'
+import { ShoppingCart, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
+import { useState } from 'react'
 
 export default function Navbar() {
   const itemCount = useCartStore(state => state.itemCount)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        
-        <Link href="/" className="font-bold text-xl text-indigo-600">
-          VidaSmart
-        </Link>
+    <>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400&display=swap');`}</style>
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'rgba(250,250,248,0.92)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #e8e6e1',
+        fontFamily: 'DM Sans, sans-serif'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 48px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-          <Link href="/productos" className="hover:text-indigo-600 transition-colors">
-            Productos
+          {/* LOGO */}
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <div style={{ fontFamily: 'Bebas Neue', fontSize: '28px', letterSpacing: '0.02em', color: '#080808' }}>
+              VIDA<span style={{ color: '#2563eb' }}>SMART</span>
+            </div>
           </Link>
-          <Link href="/productos?cat=tech" className="hover:text-indigo-600 transition-colors">
-            Tecnología
-          </Link>
-          <Link href="/productos?cat=mascotas" className="hover:text-indigo-600 transition-colors">
-            Mascotas
+
+          {/* NAV LINKS — Desktop */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            {[
+              { label: 'Productos', href: '/productos' },
+              { label: 'Tecnología', href: '/productos?cat=tech' },
+              { label: 'Mascotas', href: '/productos?cat=mascotas' },
+            ].map(link => (
+              <Link key={link.label} href={link.href} style={{
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#6b6760',
+                transition: 'color 0.2s',
+                fontFamily: 'DM Sans, sans-serif'
+              }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#080808'}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#6b6760'}
+              >{link.label}</Link>
+            ))}
+          </div>
+
+          {/* CARRITO */}
+          <Link href="/carrito" style={{ position: 'relative', textDecoration: 'none', color: '#080808', padding: '8px' }}>
+            <ShoppingCart size={22} />
+            {itemCount() > 0 && (
+              <div style={{
+                position: 'absolute', top: 0, right: 0,
+                background: '#2563eb', color: '#fff',
+                fontSize: '10px', fontWeight: 700,
+                width: '18px', height: '18px',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'DM Mono'
+              }}>
+                {itemCount()}
+              </div>
+            )}
           </Link>
         </div>
-
-        <Link href="/carrito" className="relative p-2">
-          <ShoppingCart className="w-6 h-6 text-gray-700" />
-          {itemCount() > 0 && (
-            <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-              {itemCount()}
-            </span>
-          )}
-        </Link>
-
-      </div>
-    </nav>
+      </nav>
+    </>
   )
 }
