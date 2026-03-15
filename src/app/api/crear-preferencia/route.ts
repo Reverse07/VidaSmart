@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import MercadoPago from 'mercadopago'
+import { MercadoPagoConfig, Preference } from 'mercadopago'
 
-const client = new MercadoPago.MercadoPagoConfig({
+const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 })
 
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const { items, email, orden_id } = await req.json()
 
-    const preference = new MercadoPago.Preference(client)
+    const preference = new Preference(client)
 
     const response = await preference.create({
       body: {
