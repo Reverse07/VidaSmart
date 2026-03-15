@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import React from 'react'
 import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,6 +22,48 @@ const PRODUCTOS_MOCK: Record<string, any> = {
     specs: [{ label: 'Longitud', value: '3 metros' }, { label: 'Conectividad', value: 'WiFi 2.4GHz' }, { label: 'Voltaje', value: '12V DC' }],
     reviews: [], faq: []
   },
+  'soporte-laptop-ergonomico': {
+    name: 'Soporte Laptop Ergonómico', price: 99, compare_price: 139, category: 'tech',
+    description: 'Mejora tu postura trabajando desde casa. Plegable y portátil.',
+    benefits: ['Mejora la postura', 'Plegable y portátil', 'Compatible con laptops 10-17"', 'Aluminio premium'],
+    specs: [{ label: 'Material', value: 'Aluminio' }, { label: 'Compatibilidad', value: '10-17 pulgadas' }, { label: 'Peso', value: '350g' }],
+    reviews: [], faq: []
+  },
+  'organizador-cables-premium': {
+    name: 'Organizador Cables Premium', price: 59, compare_price: 79, category: 'tech',
+    description: 'Orden instantáneo en tu escritorio. Sin más cables enredados.',
+    benefits: ['Instalación en 2 minutos', 'Adhesivo 3M incluido', 'Compatible con todos los cables', 'Diseño minimalista'],
+    specs: [{ label: 'Material', value: 'Silicona premium' }, { label: 'Capacidad', value: '6 cables' }],
+    reviews: [], faq: []
+  },
+  'bebedero-portatil': {
+    name: 'Bebedero Portátil Anti-Derrame', price: 49, compare_price: 69, category: 'mascotas',
+    description: 'Hidratación para tu mascota en cualquier lugar. Anti-derrame garantizado.',
+    benefits: ['Anti-derrame 100%', 'Capacidad 350ml', 'Fácil de limpiar', 'Botón de un solo toque'],
+    specs: [{ label: 'Capacidad', value: '350ml' }, { label: 'Material', value: 'BPA Free' }, { label: 'Peso', value: '120g' }],
+    reviews: [], faq: []
+  },
+  'cama-plegable-termica': {
+    name: 'Cama Plegable Térmica', price: 89, compare_price: 119, category: 'mascotas',
+    description: 'Confort máximo para tu mascota. Térmica, lavable y plegable.',
+    benefits: ['Relleno térmico premium', 'Lavable a máquina', 'Plegable para viajes', 'Antideslizante'],
+    specs: [{ label: 'Talla', value: 'M: 60x50cm / L: 80x65cm' }, { label: 'Material', value: 'Polar + Oxford' }],
+    reviews: [], faq: []
+  },
+  'cepillo-auto-limpiante': {
+    name: 'Cepillo Auto-Limpiante', price: 69, compare_price: 89, category: 'mascotas',
+    description: 'Limpia el cepillo en 1 segundo. Sin ensuciar tus manos.',
+    benefits: ['Auto-limpiante en 1 segundo', 'Cerdas de acero inoxidable', 'Mango ergonómico', 'Para pelo largo y corto'],
+    specs: [{ label: 'Material cerdas', value: 'Acero inoxidable' }, { label: 'Tipo pelo', value: 'Corto y largo' }],
+    reviews: [], faq: []
+  },
+  'juguete-interactivo': {
+    name: 'Juguete Interactivo Inteligente', price: 79, compare_price: 99, category: 'mascotas',
+    description: 'Entretenimiento y ejercicio para tu mascota mientras trabajas.',
+    benefits: ['Movimiento automático', 'Temporizador programable', 'Silencioso', 'Compatible con perros y gatos'],
+    specs: [{ label: 'Batería', value: 'USB recargable' }, { label: 'Autonomía', value: '4-6 horas' }],
+    reviews: [], faq: []
+  },
 }
 
 const DEFAULT_PRODUCT = {
@@ -31,12 +74,13 @@ const DEFAULT_PRODUCT = {
   reviews: [], faq: []
 }
 
-export default function ProductoPage({ params }: { params: { slug: string } }) {
+export default function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params)
   const [qty, setQty] = useState(1)
   const [activeTab, setActiveTab] = useState<'specs' | 'reviews' | 'faq'>('specs')
   const [added, setAdded] = useState(false)
 
-  const product = PRODUCTOS_MOCK[params.slug] ?? DEFAULT_PRODUCT
+  const product = PRODUCTOS_MOCK[slug] ?? DEFAULT_PRODUCT
   const discount = Math.round((1 - product.price / product.compare_price) * 100)
 
   return (
@@ -44,14 +88,12 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;700&family=DM+Mono:wght@400&display=swap');`}</style>
       <div style={{ background: '#fafaf8', minHeight: '100vh', fontFamily: 'DM Sans, sans-serif' }}>
 
-        {/* BACK */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 48px 0' }}>
           <Link href="/productos" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#6b6760', fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             <ArrowLeft size={14} /> Volver al catálogo
           </Link>
         </div>
 
-        {/* MAIN */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
 
           {/* IMAGEN */}
@@ -85,7 +127,6 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
 
             <p style={{ fontSize: '15px', fontWeight: 300, lineHeight: 1.7, color: '#6b6760', marginBottom: '32px' }}>{product.description}</p>
 
-            {/* PRECIO */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', padding: '24px 0', borderTop: '1px solid #e8e6e1', borderBottom: '1px solid #e8e6e1', marginBottom: '32px' }}>
               <span style={{ fontFamily: 'Bebas Neue', fontSize: '72px', lineHeight: 1 }}>S/{product.price}</span>
               <div>
@@ -94,7 +135,6 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
               </div>
             </div>
 
-            {/* BENEFICIOS */}
             <ul style={{ listStyle: 'none', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {product.benefits.map((b: string) => (
                 <li key={b} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px' }}>
@@ -106,7 +146,6 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
               ))}
             </ul>
 
-            {/* CANTIDAD + AGREGAR */}
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f2f1ef', borderRadius: '100px', padding: '6px 16px' }}>
                 <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #e8e6e1', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -125,7 +164,6 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
               </button>
             </div>
 
-            {/* YAPE */}
             <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
               <span style={{ fontSize: '24px' }}>📱</span>
               <div>
@@ -134,7 +172,6 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
               </div>
             </div>
 
-            {/* TRUST */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
               {[{ icon: <Shield size={14} />, text: 'Pago seguro' }, { icon: <Truck size={14} />, text: 'Envío Perú' }, { icon: <Headphones size={14} />, text: 'WhatsApp' }].map(t => (
                 <div key={t.text} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f2f1ef', borderRadius: '12px', padding: '12px', fontSize: '12px', fontWeight: 500, color: '#6b6760' }}>
@@ -168,8 +205,9 @@ export default function ProductoPage({ params }: { params: { slug: string } }) {
 
           {activeTab === 'reviews' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '16px' }}>
-              {product.reviews.length === 0 ? <p style={{ color: '#6b6760', fontFamily: 'DM Mono', fontSize: '12px' }}>Aún no hay reseñas.</p> :
-                product.reviews.map((r: any) => (
+              {product.reviews.length === 0
+                ? <p style={{ color: '#6b6760', fontFamily: 'DM Mono', fontSize: '12px' }}>Aún no hay reseñas.</p>
+                : product.reviews.map((r: any) => (
                   <div key={r.name} style={{ background: '#f2f1ef', borderRadius: '20px', padding: '24px', border: '1px solid #e8e6e1' }}>
                     <div style={{ display: 'flex', gap: '2px', marginBottom: '12px' }}>{[...Array(r.rating)].map((_, i) => <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />)}</div>
                     <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '16px' }}>"{r.text}"</p>
