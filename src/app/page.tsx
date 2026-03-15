@@ -12,7 +12,7 @@ export default function HomePage() {
     <div>
       <Hero />
       <CategorySplit />
-      <FeaturedProducts />
+      <FeaturedProduct />
       <ProblemSolution />
       <FeaturedProduct />
       <Testimonials />
