@@ -16,7 +16,7 @@ export default function CategorySplit() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;
+          justify-content: flex-end;  
           padding: 56px;
           min-height: 520px;
           text-decoration: none;
