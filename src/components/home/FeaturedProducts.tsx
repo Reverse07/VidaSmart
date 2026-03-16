@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, Plus, Check, Zap, PawPrint, Gamepad2, Mouse } from 'lucide-react'
 import Link from 'next/link'
@@ -17,7 +17,7 @@ interface Product {
   images?: string[]
 }
 
-const CATEGORY_STYLE: Record<string, { bg: string; icon: JSX.Element; accent: string; label: string }> = {
+const CATEGORY_STYLE: Record<string, { bg: string; icon: React.ReactElement; accent: string; label: string }> = {
   gaming:   { bg: '#1a0f2e', icon: <Gamepad2 size={36} color="#A78BFA" />, accent: '#8B5CF6', label: 'Gaming' },
   tech:     { bg: '#EFF6FF', icon: <Zap size={36} color="#2563EB" />,      accent: '#2563EB', label: 'Tech' },
   mascotas: { bg: '#FFF7ED', icon: <PawPrint size={36} color="#D97706" />, accent: '#D97706', label: 'Mascotas' },
