@@ -16,14 +16,28 @@ export default function CategorySplit() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;  
+          justify-content: flex-end;
           padding: 56px;
           min-height: 520px;
           text-decoration: none;
           cursor: pointer;
         }
-
-        /* ── ICON BOX ── */
+        .cat-bg-img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+        }
+        .cat-panel:hover .cat-bg-img {
+          transform: scale(1.05);
+        }
         .cat-icon-box {
           position: absolute;
           top: 48px; right: 48px;
@@ -32,8 +46,6 @@ export default function CategorySplit() {
           display: flex; align-items: center; justify-content: center;
           transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s ease;
         }
-
-        /* ── DISPLAY TYPE ── */
         .cat-title {
           font-family: 'Bebas Neue', sans-serif;
           font-size: clamp(52px, 6.5vw, 88px);
@@ -41,8 +53,6 @@ export default function CategorySplit() {
           margin: 18px 0 28px;
           transition: letter-spacing 0.5s cubic-bezier(0.16,1,0.3,1);
         }
-
-        /* ── COUNT TAG ── */
         .cat-count {
           display: inline-flex;
           align-items: center;
@@ -56,8 +66,6 @@ export default function CategorySplit() {
           margin-bottom: 16px;
           transition: all 0.3s ease;
         }
-
-        /* ── CTA ROW ── */
         .cat-cta {
           display: inline-flex;
           align-items: center;
@@ -72,8 +80,6 @@ export default function CategorySplit() {
           transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
           width: fit-content;
         }
-
-        /* ── PROGRESS BAR ── */
         .cat-bar {
           position: absolute;
           bottom: 0; left: 0;
@@ -83,15 +89,6 @@ export default function CategorySplit() {
           transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
         }
         .cat-panel:hover .cat-bar { transform: scaleX(1); }
-
-        /* ── BG OVERLAY ── */
-        .cat-overlay {
-          position: absolute;
-          inset: 0;
-          transition: opacity 0.5s ease;
-        }
-
-        /* ── ITEM TAGS ── */
         .item-tag {
           display: inline-flex;
           align-items: center;
@@ -101,10 +98,7 @@ export default function CategorySplit() {
           letter-spacing: 0.08em;
           padding: 4px 10px;
           border-radius: 100px;
-          transition: all 0.2s ease;
         }
-
-        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
           .cat-split-grid { grid-template-columns: 1fr !important; }
           .cat-panel { min-height: 380px; padding: 40px 32px; }
@@ -112,10 +106,8 @@ export default function CategorySplit() {
         }
       `}</style>
 
-      <section
-        className="cat-split-grid"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
-      >
+      <section className="cat-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+
         {/* ══ TECH PANEL ══ */}
         <Link
           href="/productos?cat=tech"
@@ -124,36 +116,30 @@ export default function CategorySplit() {
           onMouseEnter={() => setHoveredTech(true)}
           onMouseLeave={() => setHoveredTech(false)}
         >
-          {/* Ambient glow */}
-          <div className="cat-overlay" style={{
-            background: `radial-gradient(ellipse at 75% 25%, rgba(37,99,235,${hoveredTech ? '0.22' : '0.10'}) 0%, transparent 60%)`,
-          }} />
+          <div className="cat-bg-img" style={{ backgroundImage: 'url("/img/smartHomeDevices.webp")' }} />
 
-          {/* Noise texture */}
           <div style={{
             position: 'absolute', inset: 0,
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.75\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.03\'/%3E%3C/svg%3E")',
-            opacity: 0.6,
+            background: hoveredTech ? 'rgba(8,8,8,0.55)' : 'rgba(8,8,8,0.72)',
+            transition: 'background 0.5s ease',
           }} />
 
-          {/* Icon box */}
-          <div
-            className="cat-icon-box"
-            style={{
-              background: 'rgba(37,99,235,0.12)',
-              border: `1px solid rgba(37,99,235,${hoveredTech ? '0.5' : '0.25'})`,
-              transform: hoveredTech ? 'rotate(-6deg) scale(1.08)' : 'rotate(0deg) scale(1)',
-              boxShadow: hoveredTech ? '0 20px 40px rgba(37,99,235,0.25)' : 'none',
-            }}
-          >
-            <Zap
-              size={44}
-              color="#2563EB"
-              style={{ transition: 'transform 0.3s ease', transform: hoveredTech ? 'scale(1.1)' : 'scale(1)' }}
-            />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `radial-gradient(ellipse at 75% 25%, rgba(37,99,235,${hoveredTech ? '0.20' : '0.08'}) 0%, transparent 60%)`,
+            transition: 'background 0.5s ease',
+          }} />
+
+          <div className="cat-icon-box" style={{
+            background: 'rgba(37,99,235,0.15)',
+            border: `1px solid rgba(37,99,235,${hoveredTech ? '0.5' : '0.25'})`,
+            backdropFilter: 'blur(8px)',
+            transform: hoveredTech ? 'rotate(-6deg) scale(1.08)' : 'rotate(0deg) scale(1)',
+            boxShadow: hoveredTech ? '0 20px 40px rgba(37,99,235,0.3)' : 'none',
+          }}>
+            <Zap size={44} color="#2563EB" style={{ transition: 'transform 0.3s ease', transform: hoveredTech ? 'scale(1.1)' : 'scale(1)' }} />
           </div>
 
-          {/* Item tags */}
           <div style={{
             position: 'absolute', top: '48px', left: '56px',
             display: 'flex', flexDirection: 'column', gap: '6px',
@@ -163,9 +149,8 @@ export default function CategorySplit() {
           }}>
             {['Enchufes WiFi', 'Tiras LED Smart', 'Soportes Laptop'].map((tag, i) => (
               <span key={tag} className="item-tag" style={{
-                background: 'rgba(37,99,235,0.15)',
-                color: '#93B4F8',
-                border: '1px solid rgba(37,99,235,0.2)',
+                background: 'rgba(37,99,235,0.2)', color: '#93B4F8',
+                border: '1px solid rgba(37,99,235,0.25)', backdropFilter: 'blur(8px)',
                 transitionDelay: `${i * 0.05}s`,
               }}>
                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#2563EB' }} />
@@ -174,52 +159,37 @@ export default function CategorySplit() {
             ))}
           </div>
 
-          {/* Content */}
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="cat-count" style={{
-              background: hoveredTech ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.06)',
-              color: hoveredTech ? '#93B4F8' : '#555',
-              border: `1px solid ${hoveredTech ? 'rgba(37,99,235,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              background: hoveredTech ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.08)',
+              color: hoveredTech ? '#93B4F8' : '#888',
+              border: `1px solid ${hoveredTech ? 'rgba(37,99,235,0.35)' : 'rgba(255,255,255,0.12)'}`,
+              backdropFilter: 'blur(8px)',
             }}>
-              <span style={{
-                width: '5px', height: '5px', borderRadius: '50%',
-                background: hoveredTech ? '#2563EB' : '#444',
-                transition: 'background 0.3s ease',
-              }} />
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: hoveredTech ? '#2563EB' : '#555', transition: 'background 0.3s ease' }} />
               01 — Tecnología · 4 productos
             </div>
 
-            <div
-              className="cat-title"
-              style={{
-                color: '#FAFAF8',
-                letterSpacing: hoveredTech ? '0.04em' : '-0.01em',
-              }}
-            >
+            <div className="cat-title" style={{
+              color: '#FAFAF8',
+              letterSpacing: hoveredTech ? '0.04em' : '-0.01em',
+              textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+            }}>
               SMART<br />HOME
             </div>
 
-            <div
-              className="cat-cta"
-              style={{
-                background: hoveredTech ? '#2563EB' : 'rgba(255,255,255,0.08)',
-                color: hoveredTech ? '#fff' : '#888',
-                border: `1px solid ${hoveredTech ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
-                transform: hoveredTech ? 'translateX(6px)' : 'translateX(0)',
-              }}
-            >
+            <div className="cat-cta" style={{
+              background: hoveredTech ? '#2563EB' : 'rgba(255,255,255,0.1)',
+              color: hoveredTech ? '#fff' : '#ccc',
+              border: `1px solid ${hoveredTech ? 'transparent' : 'rgba(255,255,255,0.15)'}`,
+              backdropFilter: 'blur(8px)',
+              transform: hoveredTech ? 'translateX(6px)' : 'translateX(0)',
+            }}>
               Ver colección
-              <ArrowRight
-                size={14}
-                style={{
-                  transition: 'transform 0.3s ease',
-                  transform: hoveredTech ? 'translateX(3px)' : 'translateX(0)',
-                }}
-              />
+              <ArrowRight size={14} style={{ transition: 'transform 0.3s ease', transform: hoveredTech ? 'translateX(3px)' : 'translateX(0)' }} />
             </div>
           </div>
 
-          {/* Bottom progress bar */}
           <div className="cat-bar" style={{ background: '#2563EB', width: '100%' }} />
         </Link>
 
@@ -231,36 +201,30 @@ export default function CategorySplit() {
           onMouseEnter={() => setHoveredPet(true)}
           onMouseLeave={() => setHoveredPet(false)}
         >
-          {/* Warm ambient */}
-          <div className="cat-overlay" style={{
-            background: `radial-gradient(ellipse at 75% 25%, rgba(245,158,11,${hoveredPet ? '0.18' : '0.08'}) 0%, transparent 60%)`,
-          }} />
+          <div className="cat-bg-img" style={{ backgroundImage: 'url("/img/CanAndDogs.webp")' }} />
 
-          {/* Subtle grid */}
           <div style={{
             position: 'absolute', inset: 0,
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.04) 1px, transparent 0)',
-            backgroundSize: '24px 24px',
+            background: hoveredPet ? 'rgba(245,243,239,0.45)' : 'rgba(245,243,239,0.60)',
+            transition: 'background 0.5s ease',
           }} />
 
-          {/* Icon box */}
-          <div
-            className="cat-icon-box"
-            style={{
-              background: 'rgba(245,158,11,0.10)',
-              border: `1px solid rgba(245,158,11,${hoveredPet ? '0.45' : '0.20'})`,
-              transform: hoveredPet ? 'rotate(6deg) scale(1.08)' : 'rotate(0deg) scale(1)',
-              boxShadow: hoveredPet ? '0 20px 40px rgba(245,158,11,0.18)' : 'none',
-            }}
-          >
-            <PawPrint
-              size={44}
-              color="#D97706"
-              style={{ transition: 'transform 0.3s ease', transform: hoveredPet ? 'scale(1.1)' : 'scale(1)' }}
-            />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `radial-gradient(ellipse at 75% 25%, rgba(245,158,11,${hoveredPet ? '0.25' : '0.10'}) 0%, transparent 60%)`,
+            transition: 'background 0.5s ease',
+          }} />
+
+          <div className="cat-icon-box" style={{
+            background: 'rgba(245,158,11,0.15)',
+            border: `1px solid rgba(245,158,11,${hoveredPet ? '0.5' : '0.25'})`,
+            backdropFilter: 'blur(8px)',
+            transform: hoveredPet ? 'rotate(6deg) scale(1.08)' : 'rotate(0deg) scale(1)',
+            boxShadow: hoveredPet ? '0 20px 40px rgba(245,158,11,0.25)' : 'none',
+          }}>
+            <PawPrint size={44} color="#D97706" style={{ transition: 'transform 0.3s ease', transform: hoveredPet ? 'scale(1.1)' : 'scale(1)' }} />
           </div>
 
-          {/* Item tags */}
           <div style={{
             position: 'absolute', top: '48px', left: '56px',
             display: 'flex', flexDirection: 'column', gap: '6px',
@@ -270,9 +234,8 @@ export default function CategorySplit() {
           }}>
             {['Bebederos portátiles', 'Camas térmicas', 'Cepillos auto-limpiant.'].map((tag, i) => (
               <span key={tag} className="item-tag" style={{
-                background: 'rgba(245,158,11,0.10)',
-                color: '#92400E',
-                border: '1px solid rgba(245,158,11,0.2)',
+                background: 'rgba(245,158,11,0.15)', color: '#92400E',
+                border: '1px solid rgba(245,158,11,0.25)', backdropFilter: 'blur(8px)',
                 transitionDelay: `${i * 0.05}s`,
               }}>
                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#D97706' }} />
@@ -281,52 +244,37 @@ export default function CategorySplit() {
             ))}
           </div>
 
-          {/* Content */}
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="cat-count" style={{
-              background: hoveredPet ? 'rgba(245,158,11,0.12)' : 'rgba(0,0,0,0.05)',
-              color: hoveredPet ? '#92400E' : '#9C9690',
-              border: `1px solid ${hoveredPet ? 'rgba(245,158,11,0.25)' : 'rgba(0,0,0,0.08)'}`,
+              background: hoveredPet ? 'rgba(245,158,11,0.15)' : 'rgba(0,0,0,0.06)',
+              color: hoveredPet ? '#92400E' : '#7A7269',
+              border: `1px solid ${hoveredPet ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.10)'}`,
+              backdropFilter: 'blur(8px)',
             }}>
-              <span style={{
-                width: '5px', height: '5px', borderRadius: '50%',
-                background: hoveredPet ? '#D97706' : '#C8C3BB',
-                transition: 'background 0.3s ease',
-              }} />
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: hoveredPet ? '#D97706' : '#C8C3BB', transition: 'background 0.3s ease' }} />
               02 — Mascotas · 4 productos
             </div>
 
-            <div
-              className="cat-title"
-              style={{
-                color: '#080808',
-                letterSpacing: hoveredPet ? '0.04em' : '-0.01em',
-              }}
-            >
+            <div className="cat-title" style={{
+              color: '#080808',
+              letterSpacing: hoveredPet ? '0.04em' : '-0.01em',
+              textShadow: '0 2px 16px rgba(245,243,239,0.8)',
+            }}>
               PET<br />SMART
             </div>
 
-            <div
-              className="cat-cta"
-              style={{
-                background: hoveredPet ? '#D97706' : 'rgba(0,0,0,0.06)',
-                color: hoveredPet ? '#fff' : '#7A7269',
-                border: `1px solid ${hoveredPet ? 'transparent' : 'rgba(0,0,0,0.08)'}`,
-                transform: hoveredPet ? 'translateX(6px)' : 'translateX(0)',
-              }}
-            >
+            <div className="cat-cta" style={{
+              background: hoveredPet ? '#D97706' : 'rgba(8,8,8,0.08)',
+              color: hoveredPet ? '#fff' : '#5C554E',
+              border: `1px solid ${hoveredPet ? 'transparent' : 'rgba(0,0,0,0.12)'}`,
+              backdropFilter: 'blur(8px)',
+              transform: hoveredPet ? 'translateX(6px)' : 'translateX(0)',
+            }}>
               Ver colección
-              <ArrowRight
-                size={14}
-                style={{
-                  transition: 'transform 0.3s ease',
-                  transform: hoveredPet ? 'translateX(3px)' : 'translateX(0)',
-                }}
-              />
+              <ArrowRight size={14} style={{ transition: 'transform 0.3s ease', transform: hoveredPet ? 'translateX(3px)' : 'translateX(0)' }} />
             </div>
           </div>
 
-          {/* Bottom progress bar */}
           <div className="cat-bar" style={{ background: '#D97706', width: '100%' }} />
         </Link>
       </section>
