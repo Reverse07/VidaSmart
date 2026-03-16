@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, PawPrint, ArrowRight } from 'lucide-react'
+import { Zap, PawPrint, ArrowRight, Gamepad2 } from 'lucide-react'
 import { useState } from 'react'
 
 export default function CategorySplit() {
-  const [hoveredTech, setHoveredTech] = useState(false)
-  const [hoveredPet, setHoveredPet] = useState(false)
+  const [hoveredGaming, setHoveredGaming] = useState(false)
+  const [hoveredTech, setHoveredTech]     = useState(false)
+  const [hoveredPet, setHoveredPet]       = useState(false)
 
   return (
     <>
@@ -24,20 +25,14 @@ export default function CategorySplit() {
         }
         .cat-bg-img {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          width: 100%;
-          height: 100%;
+          top: 0; left: 0; right: 0; bottom: 0;
+          width: 100%; height: 100%;
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
           transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
         }
-        .cat-panel:hover .cat-bg-img {
-          transform: scale(1.05);
-        }
+        .cat-panel:hover .cat-bg-img { transform: scale(1.05); }
         .cat-icon-box {
           position: absolute;
           top: 48px; right: 48px;
@@ -48,7 +43,7 @@ export default function CategorySplit() {
         }
         .cat-title {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(52px, 6.5vw, 88px);
+          font-size: clamp(44px, 5vw, 80px);
           line-height: 0.88;
           margin: 18px 0 28px;
           transition: letter-spacing 0.5s cubic-bezier(0.16,1,0.3,1);
@@ -99,14 +94,131 @@ export default function CategorySplit() {
           padding: 4px 10px;
           border-radius: 100px;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
+          .cat-split-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 600px) {
           .cat-split-grid { grid-template-columns: 1fr !important; }
-          .cat-panel { min-height: 380px; padding: 40px 32px; }
-          .cat-icon-box { width: 80px; height: 80px; top: 32px; right: 32px; }
+          .cat-panel { min-height: 340px; padding: 32px; }
+          .cat-icon-box { width: 72px; height: 72px; top: 24px; right: 24px; }
         }
       `}</style>
 
-      <section className="cat-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      <section
+        className="cat-split-grid"
+        style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr' }}
+      >
+
+        {/* ══ GAMING PANEL — el más grande ══ */}
+        <Link
+          href="/productos?cat=gaming"
+          className="cat-panel"
+          style={{ background: '#0a0a0f' }}
+          onMouseEnter={() => setHoveredGaming(true)}
+          onMouseLeave={() => setHoveredGaming(false)}
+        >
+          <div className="cat-bg-img" style={{ backgroundImage: 'url("/img/gamingCategory.jpeg")' }} />
+
+          {/* Dark overlay */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: hoveredGaming ? 'rgba(10,10,15,0.50)' : 'rgba(10,10,15,0.68)',
+            transition: 'background 0.5s ease',
+          }} />
+
+          {/* Violet glow */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `radial-gradient(ellipse at 70% 20%, rgba(139,92,246,${hoveredGaming ? '0.30' : '0.12'}) 0%, transparent 60%)`,
+            transition: 'background 0.5s ease',
+          }} />
+
+          {/* Bottom gradient */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            height: '60%',
+            background: 'linear-gradient(to top, rgba(10,10,15,0.85), transparent)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* Icon */}
+          <div className="cat-icon-box" style={{
+            background: 'rgba(139,92,246,0.15)',
+            border: `1px solid rgba(139,92,246,${hoveredGaming ? '0.55' : '0.25'})`,
+            backdropFilter: 'blur(8px)',
+            transform: hoveredGaming ? 'rotate(-6deg) scale(1.08)' : 'rotate(0deg) scale(1)',
+            boxShadow: hoveredGaming ? '0 20px 40px rgba(139,92,246,0.30)' : 'none',
+          }}>
+            <Gamepad2
+              size={44}
+              color="#A78BFA"
+              style={{ transition: 'transform 0.3s ease', transform: hoveredGaming ? 'scale(1.1)' : 'scale(1)' }}
+            />
+          </div>
+
+          {/* Item tags */}
+          <div style={{
+            position: 'absolute', top: '48px', left: '56px',
+            display: 'flex', flexDirection: 'column', gap: '6px',
+            opacity: hoveredGaming ? 1 : 0,
+            transform: hoveredGaming ? 'translateY(0)' : 'translateY(-8px)',
+            transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
+          }}>
+            {['Mice Razer', 'Logitech G', 'Attack Shark'].map((tag, i) => (
+              <span key={tag} className="item-tag" style={{
+                background: 'rgba(139,92,246,0.18)',
+                color: '#C4B5FD',
+                border: '1px solid rgba(139,92,246,0.25)',
+                backdropFilter: 'blur(8px)',
+                transitionDelay: `${i * 0.05}s`,
+              }}>
+                <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#8B5CF6' }} />
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div className="cat-count" style={{
+              background: hoveredGaming ? 'rgba(139,92,246,0.22)' : 'rgba(255,255,255,0.07)',
+              color: hoveredGaming ? '#C4B5FD' : '#666',
+              border: `1px solid ${hoveredGaming ? 'rgba(139,92,246,0.35)' : 'rgba(255,255,255,0.10)'}`,
+              backdropFilter: 'blur(8px)',
+            }}>
+              <span style={{
+                width: '5px', height: '5px', borderRadius: '50%',
+                background: hoveredGaming ? '#8B5CF6' : '#444',
+                transition: 'background 0.3s ease',
+              }} />
+              01 — Gaming · 10 productos
+            </div>
+
+            <div className="cat-title" style={{
+              color: '#FAFAF8',
+              letterSpacing: hoveredGaming ? '0.04em' : '-0.01em',
+              textShadow: '0 2px 24px rgba(0,0,0,0.6)',
+            }}>
+              MICE<br />GAMING
+            </div>
+
+            <div className="cat-cta" style={{
+              background: hoveredGaming ? '#8B5CF6' : 'rgba(255,255,255,0.08)',
+              color: hoveredGaming ? '#fff' : '#aaa',
+              border: `1px solid ${hoveredGaming ? 'transparent' : 'rgba(255,255,255,0.12)'}`,
+              backdropFilter: 'blur(8px)',
+              transform: hoveredGaming ? 'translateX(6px)' : 'translateX(0)',
+            }}>
+              Ver colección
+              <ArrowRight size={14} style={{
+                transition: 'transform 0.3s ease',
+                transform: hoveredGaming ? 'translateX(3px)' : 'translateX(0)',
+              }} />
+            </div>
+          </div>
+
+          <div className="cat-bar" style={{ background: '#8B5CF6', width: '100%' }} />
+        </Link>
 
         {/* ══ TECH PANEL ══ */}
         <Link
@@ -126,7 +238,7 @@ export default function CategorySplit() {
 
           <div style={{
             position: 'absolute', inset: 0,
-            background: `radial-gradient(ellipse at 75% 25%, rgba(37,99,235,${hoveredTech ? '0.20' : '0.08'}) 0%, transparent 60%)`,
+            background: `radial-gradient(ellipse at 75% 25%, rgba(37,99,235,${hoveredTech ? '0.22' : '0.08'}) 0%, transparent 60%)`,
             transition: 'background 0.5s ease',
           }} />
 
@@ -147,7 +259,7 @@ export default function CategorySplit() {
             transform: hoveredTech ? 'translateY(0)' : 'translateY(-8px)',
             transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
           }}>
-            {['Enchufes WiFi', 'Tiras LED Smart', 'Soportes Laptop'].map((tag, i) => (
+            {['Enchufes WiFi', 'Tiras LED', 'Soportes'].map((tag, i) => (
               <span key={tag} className="item-tag" style={{
                 background: 'rgba(37,99,235,0.2)', color: '#93B4F8',
                 border: '1px solid rgba(37,99,235,0.25)', backdropFilter: 'blur(8px)',
@@ -167,9 +279,8 @@ export default function CategorySplit() {
               backdropFilter: 'blur(8px)',
             }}>
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: hoveredTech ? '#2563EB' : '#555', transition: 'background 0.3s ease' }} />
-              01 — Tecnología · 4 productos
+              02 — Tecnología · 4 productos
             </div>
-
             <div className="cat-title" style={{
               color: '#FAFAF8',
               letterSpacing: hoveredTech ? '0.04em' : '-0.01em',
@@ -177,7 +288,6 @@ export default function CategorySplit() {
             }}>
               SMART<br />HOME
             </div>
-
             <div className="cat-cta" style={{
               background: hoveredTech ? '#2563EB' : 'rgba(255,255,255,0.1)',
               color: hoveredTech ? '#fff' : '#ccc',
@@ -189,7 +299,6 @@ export default function CategorySplit() {
               <ArrowRight size={14} style={{ transition: 'transform 0.3s ease', transform: hoveredTech ? 'translateX(3px)' : 'translateX(0)' }} />
             </div>
           </div>
-
           <div className="cat-bar" style={{ background: '#2563EB', width: '100%' }} />
         </Link>
 
@@ -232,7 +341,7 @@ export default function CategorySplit() {
             transform: hoveredPet ? 'translateY(0)' : 'translateY(-8px)',
             transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
           }}>
-            {['Bebederos portátiles', 'Camas térmicas', 'Cepillos auto-limpiant.'].map((tag, i) => (
+            {['Bebederos', 'Camas térmicas', 'Cepillos'].map((tag, i) => (
               <span key={tag} className="item-tag" style={{
                 background: 'rgba(245,158,11,0.15)', color: '#92400E',
                 border: '1px solid rgba(245,158,11,0.25)', backdropFilter: 'blur(8px)',
@@ -252,9 +361,8 @@ export default function CategorySplit() {
               backdropFilter: 'blur(8px)',
             }}>
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: hoveredPet ? '#D97706' : '#C8C3BB', transition: 'background 0.3s ease' }} />
-              02 — Mascotas · 4 productos
+              03 — Mascotas · 4 productos
             </div>
-
             <div className="cat-title" style={{
               color: '#080808',
               letterSpacing: hoveredPet ? '0.04em' : '-0.01em',
@@ -262,7 +370,6 @@ export default function CategorySplit() {
             }}>
               PET<br />SMART
             </div>
-
             <div className="cat-cta" style={{
               background: hoveredPet ? '#D97706' : 'rgba(8,8,8,0.08)',
               color: hoveredPet ? '#fff' : '#5C554E',
@@ -274,7 +381,6 @@ export default function CategorySplit() {
               <ArrowRight size={14} style={{ transition: 'transform 0.3s ease', transform: hoveredPet ? 'translateX(3px)' : 'translateX(0)' }} />
             </div>
           </div>
-
           <div className="cat-bar" style={{ background: '#D97706', width: '100%' }} />
         </Link>
       </section>
