@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight } from 'lucide-react'
+import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight, Gamepad2 } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
@@ -25,9 +25,7 @@ export default function Navbar() {
   useEffect(() => { setMenuOpen(false); setActiveDropdown(null) }, [pathname])
 
   const openDropdown = (key: string) => {
-    if (dropdownTimer.current) {
-      clearTimeout(dropdownTimer.current)
-    }
+    if (dropdownTimer.current) clearTimeout(dropdownTimer.current)
     setActiveDropdown(key)
   }
   const closeDropdown = () => {
@@ -36,11 +34,23 @@ export default function Navbar() {
 
   const categories = [
     {
+      key: 'gaming',
+      label: 'Gaming',
+      href: '/productos?cat=gaming',
+      icon: <Gamepad2 size={14} />,
+      color: '#1a0f2e',
+      textColor: '#A78BFA',
+      accent: '#8B5CF6',
+      items: ['Mice Razer', 'Logitech G', 'Attack Shark', 'VGN · Lamzu'],
+    },
+    {
       key: 'tech',
       label: 'Tecnología',
       href: '/productos?cat=tech',
       icon: <Zap size={14} />,
       color: '#EFF6FF',
+      textColor: '#2563EB',
+      accent: '#2563EB',
       items: ['Enchufes WiFi', 'Tiras LED Smart', 'Soportes Laptop', 'Organizadores'],
     },
     {
@@ -49,9 +59,17 @@ export default function Navbar() {
       href: '/productos?cat=mascotas',
       icon: <PawPrint size={14} />,
       color: '#FFF7ED',
+      textColor: '#D97706',
+      accent: '#D97706',
       items: ['Bebederos', 'Camas térmicas', 'Cepillos', 'Juguetes'],
     },
   ]
+
+  const getCartIcon = (slug: string) => {
+    if (slug?.includes('razer') || slug?.includes('logitech') || slug?.includes('attack') || slug?.includes('vgn') || slug?.includes('hyperx')) return '🎮'
+    if (slug?.includes('bebedero') || slug?.includes('cama') || slug?.includes('cepillo') || slug?.includes('juguete')) return '🐾'
+    return '⚡'
+  }
 
   return (
     <>
@@ -70,7 +88,6 @@ export default function Navbar() {
         }
         .nav-link:hover { color: #080808; background: #F7F6F4; }
         .nav-link.active { color: #080808; }
-
         .nav-link::after {
           content: '';
           position: absolute;
@@ -81,8 +98,8 @@ export default function Navbar() {
           transform-origin: left;
           transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
         }
-        .nav-link.active::after,
-        .nav-link:hover::after { transform: scaleX(1); }
+        .nav-link.active::after, .nav-link:hover::after { transform: scaleX(1); }
+        .nav-link-gaming::after { background: #8B5CF6 !important; }
 
         .dropdown {
           position: absolute;
@@ -90,17 +107,23 @@ export default function Navbar() {
           left: 50%;
           transform: translateX(-50%);
           min-width: 280px;
-          background: #FAFAF8;
-          border: 1px solid #E2DED8;
           border-radius: 20px;
           padding: 20px;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.04);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
           animation: dropIn 0.2s cubic-bezier(0.16,1,0.3,1) both;
           z-index: 200;
         }
+        .dropdown-light {
+          background: #FAFAF8;
+          border: 1px solid #E2DED8;
+        }
+        .dropdown-dark {
+          background: #0f0a1a;
+          border: 1px solid rgba(139,92,246,0.25);
+        }
         @keyframes dropIn {
           from { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.97); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
         }
 
         .dropdown-item {
@@ -111,12 +134,14 @@ export default function Navbar() {
           border-radius: 10px;
           font-size: 13px;
           font-weight: 500;
-          color: #5C554E;
           text-decoration: none;
           transition: all 0.15s ease;
           font-family: 'DM Sans', sans-serif;
         }
-        .dropdown-item:hover { background: #F7F6F4; color: #080808; padding-left: 16px; }
+        .dropdown-item-light { color: #5C554E; }
+        .dropdown-item-light:hover { background: #F7F6F4; color: #080808; padding-left: 16px; }
+        .dropdown-item-dark { color: #9F7AEA; }
+        .dropdown-item-dark:hover { background: rgba(139,92,246,0.1); color: #C4B5FD; padding-left: 16px; }
 
         .cart-btn {
           position: relative;
@@ -128,16 +153,13 @@ export default function Navbar() {
           transition: background 0.2s ease, transform 0.2s ease;
         }
         .cart-btn:hover { background: #F7F6F4; transform: scale(1.05); }
-
         .badge {
           position: absolute;
           top: 2px; right: 2px;
           background: #2563EB;
           color: #fff;
-          font-size: 9px;
-          font-weight: 700;
-          min-width: 16px;
-          height: 16px;
+          font-size: 9px; font-weight: 700;
+          min-width: 16px; height: 16px;
           border-radius: 8px;
           display: flex; align-items: center; justify-content: center;
           padding: 0 4px;
@@ -153,8 +175,7 @@ export default function Navbar() {
 
         .cart-preview {
           position: absolute;
-          top: calc(100% + 12px);
-          right: 0;
+          top: calc(100% + 12px); right: 0;
           width: 320px;
           background: #FAFAF8;
           border: 1px solid #E2DED8;
@@ -178,11 +199,9 @@ export default function Navbar() {
         }
         .mobile-link {
           display: flex; align-items: center; justify-content: space-between;
-          padding: 13px 16px;
-          border-radius: 12px;
+          padding: 13px 16px; border-radius: 12px;
           font-size: 15px; font-weight: 500;
-          color: #3E3A35;
-          text-decoration: none;
+          color: #3E3A35; text-decoration: none;
           transition: background 0.15s ease;
           font-family: 'DM Sans', sans-serif;
         }
@@ -197,41 +216,36 @@ export default function Navbar() {
         }
       `}</style>
 
-      {/* ── ANNOUNCEMENT BAR ── */}
+      {/* ANNOUNCEMENT BAR */}
       <div style={{
-        background: '#080808',
-        color: '#fff',
-        height: '36px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        position: 'relative',
+        background: '#080808', color: '#fff',
+        height: '36px', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', overflow: 'hidden', position: 'relative',
       }}>
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '48px',
+          display: 'flex', alignItems: 'center', gap: '48px',
           animation: 'marqueeAnnounce 32s linear infinite',
           whiteSpace: 'nowrap',
         }}>
           {[
-            '✦ Envíos a todo el Perú',
-            '✦ Pago con Yape y tarjeta',
-            '✦ Garantía 30 días',
-            '✦ Soporte por WhatsApp 24/7',
-            '✦ Envíos en 2-3 días en Lima',
-            '✦ Envíos a todo el Perú',
-            '✦ Pago con Yape y tarjeta',
-            '✦ Garantía 30 días',
-            '✦ Soporte por WhatsApp 24/7',
-            '✦ Envíos en 2-3 días en Lima',
+            '🎮 Mice gaming desde S/69',
+            '✦', '⚡ Smart Home',
+            '✦', '🐾 Para tu mascota',
+            '✦', '📦 Envíos a todo Perú',
+            '✦', '💳 Pago con Yape',
+            '✦', '↩ Garantía 30 días',
+            '✦', '🎮 Mice gaming desde S/69',
+            '✦', '⚡ Smart Home',
+            '✦', '🐾 Para tu mascota',
+            '✦', '📦 Envíos a todo Perú',
+            '✦', '💳 Pago con Yape',
+            '✦', '↩ Garantía 30 días',
+            '✦',
           ].map((text, i) => (
             <span key={i} style={{
               fontFamily: "'DM Mono', monospace",
-              fontSize: '11px',
-              letterSpacing: '0.08em',
-              color: i % 2 === 0 ? '#fff' : '#A09890',
+              fontSize: '11px', letterSpacing: '0.08em',
+              color: text === '✦' ? '#333' : i % 4 === 0 ? '#A78BFA' : '#888',
             }}>{text}</span>
           ))}
         </div>
@@ -243,11 +257,9 @@ export default function Navbar() {
         `}</style>
       </div>
 
-      {/* ── MAIN NAV ── */}
+      {/* MAIN NAV */}
       <nav style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
+        position: 'sticky', top: 0, zIndex: 100,
         background: scrolled ? 'rgba(250,250,248,0.97)' : 'rgba(250,250,248,0.85)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -256,78 +268,56 @@ export default function Navbar() {
         boxShadow: scrolled ? '0 1px 0 rgba(0,0,0,0.04)' : 'none',
       }}>
         <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 48px',
-          height: '60px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '24px',
+          maxWidth: '1400px', margin: '0 auto', padding: '0 48px',
+          height: '60px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', gap: '24px',
         }}>
 
           {/* LOGO */}
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '24px',
-                letterSpacing: '0.03em',
-                color: '#080808',
-                lineHeight: 1,
-              }}>VIDA</span>
-              <span style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '24px',
-                letterSpacing: '0.03em',
-                color: '#2563EB',
-                lineHeight: 1,
-              }}>SMART</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '24px', letterSpacing: '0.03em', color: '#080808', lineHeight: 1 }}>VIDA</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '24px', letterSpacing: '0.03em', color: '#2563EB', lineHeight: 1 }}>SMART</span>
               <div style={{
-                marginLeft: '8px',
-                background: '#EFF6FF',
-                border: '1px solid #DBEAFE',
-                borderRadius: '4px',
-                padding: '2px 6px',
-                fontFamily: "'DM Mono', monospace",
-                fontSize: '9px',
-                letterSpacing: '0.08em',
-                color: '#2563EB',
-                fontWeight: 500,
+                marginLeft: '8px', background: '#EFF6FF', border: '1px solid #DBEAFE',
+                borderRadius: '4px', padding: '2px 6px',
+                fontFamily: "'DM Mono', monospace", fontSize: '9px',
+                letterSpacing: '0.08em', color: '#2563EB', fontWeight: 500,
               }}>PERÚ</div>
             </div>
           </Link>
 
-          {/* NAV LINKS — Desktop */}
+          {/* NAV LINKS */}
           <div className="desktop-nav" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2px',
-            flex: 1,
-            justifyContent: 'center',
+            display: 'flex', alignItems: 'center', gap: '2px', flex: 1, justifyContent: 'center',
           }}>
             <Link href="/productos" className={`nav-link ${pathname === '/productos' ? 'active' : ''}`}>
               Todos
             </Link>
 
             {categories.map(cat => (
-              <div
-                key={cat.key}
-                style={{ position: 'relative' }}
+              <div key={cat.key} style={{ position: 'relative' }}
                 onMouseEnter={() => openDropdown(cat.key)}
                 onMouseLeave={closeDropdown}
               >
                 <Link
                   href={cat.href}
-                  className={`nav-link ${pathname?.includes(`cat=${cat.key}`) ? 'active' : ''}`}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                  className={`nav-link ${cat.key === 'gaming' ? 'nav-link-gaming' : ''} ${pathname?.includes(`cat=${cat.key}`) ? 'active' : ''}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    color: cat.key === 'gaming' && activeDropdown === 'gaming' ? '#8B5CF6' : undefined,
+                  }}
                 >
+                  {cat.key === 'gaming' && (
+                    <span style={{ color: '#8B5CF6', opacity: 0.8 }}>
+                      <Gamepad2 size={13} />
+                    </span>
+                  )}
                   {cat.label}
                   <span style={{
                     display: 'inline-block',
                     transform: activeDropdown === cat.key ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease',
-                    opacity: 0.5,
+                    transition: 'transform 0.2s ease', opacity: 0.5,
                   }}>
                     <ChevronRight size={12} />
                   </span>
@@ -335,62 +325,52 @@ export default function Navbar() {
 
                 {activeDropdown === cat.key && (
                   <div
-                    className="dropdown"
+                    className={`dropdown ${cat.key === 'gaming' ? 'dropdown-dark' : 'dropdown-light'}`}
                     onMouseEnter={() => openDropdown(cat.key)}
                     onMouseLeave={closeDropdown}
                   >
-                    {/* Dropdown header */}
+                    {/* Header */}
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: '10px',
                       padding: '10px 12px',
-                      background: cat.color,
-                      borderRadius: '12px',
-                      marginBottom: '12px',
+                      background: cat.key === 'gaming' ? 'rgba(139,92,246,0.12)' : cat.color,
+                      border: cat.key === 'gaming' ? '1px solid rgba(139,92,246,0.2)' : 'none',
+                      borderRadius: '12px', marginBottom: '12px',
                     }}>
-                      <span style={{ color: cat.key === 'tech' ? '#2563EB' : '#D97706' }}>{cat.icon}</span>
+                      <span style={{ color: cat.textColor }}>{cat.icon}</span>
                       <span style={{
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: '18px',
+                        fontFamily: "'Bebas Neue', sans-serif", fontSize: '18px',
                         letterSpacing: '0.03em',
-                        color: '#080808',
+                        color: cat.key === 'gaming' ? '#C4B5FD' : '#080808',
                       }}>{cat.label.toUpperCase()}</span>
                     </div>
 
                     {cat.items.map(item => (
-                      <Link
-                        key={item}
-                        href={cat.href}
-                        className="dropdown-item"
+                      <Link key={item} href={cat.href}
+                        className={`dropdown-item ${cat.key === 'gaming' ? 'dropdown-item-dark' : 'dropdown-item-light'}`}
                       >
                         <span style={{
-                          width: '6px', height: '6px',
-                          borderRadius: '50%',
-                          background: cat.key === 'tech' ? '#2563EB' : '#D97706',
-                          flexShrink: 0,
+                          width: '6px', height: '6px', borderRadius: '50%',
+                          background: cat.accent, flexShrink: 0,
                         }} />
                         {item}
                       </Link>
                     ))}
 
                     <div style={{
-                      marginTop: '12px',
-                      paddingTop: '12px',
-                      borderTop: '1px solid #E2DED8',
+                      marginTop: '12px', paddingTop: '12px',
+                      borderTop: `1px solid ${cat.key === 'gaming' ? 'rgba(139,92,246,0.15)' : '#E2DED8'}`,
                     }}>
                       <Link href={cat.href} style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '9px 12px',
-                        borderRadius: '10px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        color: cat.key === 'tech' ? '#2563EB' : '#D97706',
-                        textDecoration: 'none',
+                        padding: '9px 12px', borderRadius: '10px',
+                        fontSize: '12px', fontWeight: 600,
+                        color: cat.accent, textDecoration: 'none',
                         fontFamily: "'DM Mono', monospace",
-                        letterSpacing: '0.05em',
-                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em', textTransform: 'uppercase',
                         transition: 'background 0.15s',
                       }}
-                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F7F6F4'}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
                       >
                         Ver toda la colección
@@ -407,8 +387,7 @@ export default function Navbar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
 
             {/* CART */}
-            <div
-              style={{ position: 'relative' }}
+            <div style={{ position: 'relative' }}
               onMouseEnter={() => { if (itemCount() > 0) setCartPreview(true) }}
               onMouseLeave={() => setCartPreview(false)}
             >
@@ -421,34 +400,27 @@ export default function Navbar() {
                 )}
               </Link>
 
-              {/* Cart mini preview */}
               {cartPreview && itemCount() > 0 && (
                 <div className="cart-preview">
                   <p style={{
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#A09890',
-                    marginBottom: '12px',
+                    fontFamily: "'DM Mono', monospace", fontSize: '10px',
+                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    color: '#A09890', marginBottom: '12px',
                   }}>{itemCount()} {itemCount() === 1 ? 'producto' : 'productos'}</p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                     {items.slice(0, 3).map(item => (
                       <div key={item.id} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <div style={{
-                          width: '40px', height: '40px',
-                          background: '#F7F6F4',
-                          borderRadius: '8px',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '18px', flexShrink: 0,
+                          width: '40px', height: '40px', background: '#F7F6F4',
+                          borderRadius: '8px', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', fontSize: '18px', flexShrink: 0,
                         }}>
-                          {item.slug?.includes('mascota') || item.slug?.includes('bebedero') || item.slug?.includes('cama') || item.slug?.includes('cepillo') || item.slug?.includes('juguete') ? '🐾' : '⚡'}
+                          {getCartIcon(item.slug)}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{
-                            fontSize: '12px', fontWeight: 600,
-                            color: '#080808',
+                            fontSize: '12px', fontWeight: 600, color: '#080808',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           }}>{item.name}</p>
                           <p style={{ fontSize: '11px', color: '#A09890' }}>
@@ -458,7 +430,7 @@ export default function Navbar() {
                       </div>
                     ))}
                     {items.length > 3 && (
-                      <p style={{ fontSize: '11px', color: '#A09890', fontFamily: "'DM Mono', monospace", letterSpacing: '0.06em' }}>
+                      <p style={{ fontSize: '11px', color: '#A09890', fontFamily: "'DM Mono', monospace" }}>
                         +{items.length - 3} más...
                       </p>
                     )}
@@ -468,10 +440,8 @@ export default function Navbar() {
                     display: 'block', textAlign: 'center',
                     background: '#080808', color: '#fff',
                     padding: '12px', borderRadius: '100px',
-                    textDecoration: 'none',
-                    fontSize: '13px', fontWeight: 700,
-                    fontFamily: "'DM Sans', sans-serif",
-                    transition: 'background 0.2s',
+                    textDecoration: 'none', fontSize: '13px', fontWeight: 700,
+                    fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s',
                   }}
                     onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#2563EB'}
                     onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = '#080808'}
@@ -482,23 +452,18 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* CTA BUTTON */}
-            <Link href="/productos" style={{
+            {/* CTA */}
+            <Link href="/productos" className="desktop-nav" style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: '#080808',
-              color: '#fff',
-              padding: '9px 18px',
-              borderRadius: '100px',
-              textDecoration: 'none',
-              fontSize: '13px',
-              fontWeight: 600,
+              background: '#080808', color: '#fff',
+              padding: '9px 18px', borderRadius: '100px',
+              textDecoration: 'none', fontSize: '13px', fontWeight: 600,
               fontFamily: "'DM Sans', sans-serif",
               transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
               marginLeft: '8px',
             }}
-              className="desktop-nav"
               onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = '#2563EB'
+                (e.currentTarget as HTMLAnchorElement).style.background = '#8B5CF6'
                 ;(e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.03)'
               }}
               onMouseLeave={e => {
@@ -511,41 +476,36 @@ export default function Navbar() {
             </Link>
 
             {/* Mobile toggle */}
-            <button
-              className="mobile-toggle"
-              onClick={() => setMenuOpen(!menuOpen)}
-              style={{
-                width: '40px', height: '40px',
-                borderRadius: '50%',
-                border: 'none',
-                background: menuOpen ? '#F7F6F4' : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#080808',
-                transition: 'background 0.2s',
-              }}
-              aria-label="Menú"
-            >
-              {menuOpen
-                ? <X size={18} strokeWidth={2} />
-                : <Menu size={18} strokeWidth={1.8} />}
+            <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} style={{
+              width: '40px', height: '40px', borderRadius: '50%', border: 'none',
+              background: menuOpen ? '#F7F6F4' : 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#080808', transition: 'background 0.2s',
+            }} aria-label="Menú">
+              {menuOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={1.8} />}
             </button>
           </div>
         </div>
 
-        {/* ── MOBILE MENU ── */}
+        {/* MOBILE MENU */}
         {menuOpen && (
           <div className="mobile-menu">
             <Link href="/productos" className="mobile-link">
               Todos los productos
               <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
             </Link>
+            <Link href="/productos?cat=gaming" className="mobile-link" style={{ color: '#7C3AED' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '28px', height: '28px', background: '#1a0f2e', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Gamepad2 size={13} color="#A78BFA" />
+                </span>
+                PC Gaming
+              </span>
+              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+            </Link>
             <Link href="/productos?cat=tech" className="mobile-link">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  width: '28px', height: '28px',
-                  background: '#EFF6FF', borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+                <span style={{ width: '28px', height: '28px', background: '#EFF6FF', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Zap size={13} color="#2563EB" />
                 </span>
                 Tecnología
@@ -554,20 +514,14 @@ export default function Navbar() {
             </Link>
             <Link href="/productos?cat=mascotas" className="mobile-link">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  width: '28px', height: '28px',
-                  background: '#FFF7ED', borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+                <span style={{ width: '28px', height: '28px', background: '#FFF7ED', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <PawPrint size={13} color="#D97706" />
                 </span>
                 Mascotas
               </span>
               <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
             </Link>
-
             <div style={{ height: '1px', background: '#E2DED8', margin: '8px 0' }} />
-
             <Link href="/carrito" className="mobile-link" style={{ color: '#2563EB' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <ShoppingCart size={16} />
