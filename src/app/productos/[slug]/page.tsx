@@ -2,18 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import React from 'react'
-import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus } from 'lucide-react'
+import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint } from 'lucide-react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { supabase } from '@/lib/supabase'
 
+const CAT = {
+  gaming:   { bg: '#0f0a1a', accent: '#8B5CF6', text: '#A78BFA', label: 'Gaming', icon: <Gamepad2 size={14} color="#A78BFA" /> },
+  tech:     { bg: '#EFF6FF', accent: '#2563EB', text: '#2563EB', label: 'Tech',   icon: <Zap size={14} color="#2563EB" /> },
+  mascotas: { bg: '#FFF7ED', accent: '#D97706', text: '#D97706', label: 'Mascotas', icon: <PawPrint size={14} color="#D97706" /> },
+}
+
+function isVideo(src: string) {
+  return src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.mov')
+}
+
 export default function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = React.use(params)
-  const [qty, setQty] = useState(1)
-  const [activeTab, setActiveTab] = useState<'specs' | 'reviews' | 'faq'>('specs')
-  const [added, setAdded] = useState(false)
-  const [product, setProduct] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { slug }        = React.use(params)
+  const [qty, setQty]   = useState(1)
+  const [activeTab, setActiveTab]   = useState<'specs' | 'reviews' | 'faq'>('specs')
+  const [added, setAdded]           = useState(false)
+  const [product, setProduct]       = useState<any>(null)
+  const [loading, setLoading]       = useState(true)
+  const [activeMedia, setActiveMedia] = useState(0)
   const addItem = useCartStore(state => state.addItem)
 
   useEffect(() => {
@@ -31,7 +42,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
   if (loading) {
     return (
-      <div style={{ padding: '80px 48px', fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760', letterSpacing: '0.1em' }}>
+      <div style={{ padding: '80px 48px', fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#6b6760', letterSpacing: '0.1em' }}>
         CARGANDO...
       </div>
     )
@@ -39,19 +50,24 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
   if (!product) {
     return (
-      <div style={{ padding: '80px 48px', fontFamily: 'DM Sans, sans-serif', textAlign: 'center' }}>
+      <div style={{ padding: '80px 48px', fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}>
         <p style={{ color: '#6b6760' }}>Producto no encontrado.</p>
         <Link href="/productos" style={{ color: '#2563eb' }}>Volver al catálogo</Link>
       </div>
     )
   }
 
+  const cat     = CAT[product.category as keyof typeof CAT] ?? CAT.tech
+  const isDark  = product.category === 'gaming'
   const discount = product.compare_price
     ? Math.round((1 - product.price / product.compare_price) * 100)
     : 0
 
-  // Specs, benefits, faq vienen del campo description por ahora
-  // En el futuro se pueden agregar columnas a la tabla
+  // All media: images + videos
+  const allMedia: string[] = product.images ?? []
+  const currentMedia = allMedia[activeMedia]
+  const isCurrentVideo = currentMedia ? isVideo(currentMedia) : false
+
   const benefits = [
     'Alta calidad premium',
     'Garantía 30 días',
@@ -61,97 +77,351 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;700&family=DM+Mono:wght@400&display=swap');`}</style>
-      <div style={{ background: '#fafaf8', minHeight: '100vh', fontFamily: 'DM Sans, sans-serif' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 48px 0' }}>
-          <Link href="/productos" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#6b6760', fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        .pd-page { min-height: 100vh; font-family: 'DM Sans', sans-serif; }
+
+        /* ── THUMBNAIL ── */
+        .pd-thumb {
+          aspect-ratio: 1;
+          border-radius: 12px;
+          overflow: hidden;
+          cursor: pointer;
+          border: 2px solid transparent;
+          transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+          display: flex; align-items: center; justify-content: center;
+          position: relative;
+        }
+        .pd-thumb:hover { transform: translateY(-2px); }
+        .pd-thumb.active { border-color: var(--accent) !important; }
+        .pd-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ── VIDEO PLAY BTN ── */
+        .pd-play-badge {
+          position: absolute; inset: 0;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(0,0,0,0.3);
+          border-radius: inherit;
+        }
+
+        /* ── MAIN IMG ── */
+        .pd-main-media {
+          border-radius: 28px;
+          overflow: hidden;
+          aspect-ratio: 1;
+          display: flex; align-items: center; justify-content: center;
+          position: relative;
+          transition: background 0.4s ease;
+        }
+        .pd-main-media img {
+          width: 85%; height: 85%;
+          object-fit: contain;
+          position: relative; z-index: 1;
+          transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        .pd-main-media:hover img { transform: scale(1.04); }
+        .pd-main-media video {
+          width: 100%; height: 100%;
+          object-fit: cover;
+        }
+
+        /* ── ADD BUTTON ── */
+        .pd-add-btn {
+          flex: 1;
+          background: var(--accent);
+          color: #fff; border: none;
+          border-radius: 100px;
+          padding: 18px 32px;
+          font-size: 15px; font-weight: 700;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          font-family: 'DM Sans', sans-serif;
+          transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .pd-add-btn:hover { transform: scale(1.02); }
+        .pd-add-btn.added { background: #16a34a !important; box-shadow: none; }
+
+        /* ── TABS ── */
+        .pd-tab {
+          fontFamily: "'DM Mono', monospace";
+          font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+          padding: 12px 24px; background: transparent; border: none;
+          cursor: pointer; transition: color 0.2s, border-color 0.2s;
+        }
+
+        /* ── BENEFIT ITEM ── */
+        .pd-benefit {
+          display: flex; gap: 10px; align-items: flex-start; font-size: 14px;
+        }
+        .pd-benefit-icon {
+          width: 20px; height: 20px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+          .pd-grid { grid-template-columns: 1fr !important; }
+          .pd-thumbs { grid-template-columns: repeat(4, 1fr) !important; }
+        }
+      `}</style>
+
+      <div
+        className="pd-page"
+        style={{
+          background: isDark ? '#080610' : '#FAFAF8',
+          '--accent': cat.accent,
+        } as React.CSSProperties}
+      >
+        {/* Back link */}
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '32px 48px 0' }}>
+          <Link href="/productos" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            textDecoration: 'none',
+            color: isDark ? '#7C3AED' : '#6b6760',
+            fontFamily: "'DM Mono', monospace", fontSize: '11px',
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>
             <ArrowLeft size={14} /> Volver al catálogo
           </Link>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
+        {/* Main grid */}
+        <div
+          className="pd-grid"
+          style={{
+            maxWidth: '1300px', margin: '0 auto',
+            padding: '40px 48px 80px',
+            display: 'grid', gridTemplateColumns: '1fr 1fr',
+            gap: '72px', alignItems: 'start',
+          }}
+        >
 
-          {/* IMAGEN */}
-          <div style={{ position: 'sticky', top: '100px' }}>
-            <div style={{ background: product.category === 'tech' ? '#f0f4ff' : '#fff7ed', borderRadius: '32px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '12px' }}>
-              {product.images?.[0] ? (
-                <img src={product.images[0]} alt={product.name} style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+          {/* ── LEFT: GALLERY ── */}
+          <div style={{ position: 'sticky', top: '90px' }}>
+
+            {/* Main media */}
+            <div
+              className="pd-main-media"
+              style={{
+                background: isDark
+                  ? 'linear-gradient(145deg, #0c0820, #130a30)'
+                  : cat.bg,
+                border: isDark ? '1px solid rgba(139,92,246,0.2)' : 'none',
+                marginBottom: '12px',
+                boxShadow: isDark
+                  ? '0 24px 64px rgba(139,92,246,0.12)'
+                  : '0 8px 32px rgba(0,0,0,0.06)',
+              }}
+            >
+              {/* Gaming ambient glow */}
+              {isDark && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.12), transparent 65%)',
+                  pointerEvents: 'none',
+                }} />
+              )}
+
+              {currentMedia ? (
+                isCurrentVideo ? (
+                  <video
+                    key={currentMedia}
+                    autoPlay loop muted playsInline
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  >
+                    <source src={currentMedia} />
+                  </video>
+                ) : (
+                  <img
+                    src={currentMedia}
+                    alt={product.name}
+                    style={{
+                      filter: isDark ? 'drop-shadow(0 12px 24px rgba(139,92,246,0.25))' : 'none',
+                    }}
+                  />
+                )
               ) : (
-                <span style={{ fontSize: '120px' }}>{product.category === 'tech' ? '⚡' : '🐾'}</span>
+                <span style={{ fontSize: '120px', position: 'relative', zIndex: 1 }}>
+                  {isDark ? '🎮' : product.category === 'tech' ? '⚡' : '🐾'}
+                </span>
               )}
+
+              {/* Discount badge */}
               {discount > 0 && (
-                <div style={{ position: 'absolute', top: '20px', left: '20px', background: '#2563eb', color: '#fff', fontFamily: 'DM Mono', fontSize: '11px', padding: '6px 12px', borderRadius: '100px' }}>-{discount}%</div>
+                <div style={{
+                  position: 'absolute', top: '20px', left: '20px',
+                  background: cat.accent, color: '#fff',
+                  fontFamily: "'DM Mono', monospace", fontSize: '11px',
+                  padding: '5px 12px', borderRadius: '100px', zIndex: 2,
+                  boxShadow: `0 4px 12px ${cat.accent}44`,
+                }}>-{discount}%</div>
               )}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px' }}>
-              {[...Array(4)].map((_, i) => (
-                <div key={i} style={{ background: product.category === 'tech' ? '#f0f4ff' : '#fff7ed', borderRadius: '16px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', border: i === 0 ? '2px solid #080808' : '2px solid #e8e6e1', cursor: 'pointer', fontSize: '24px' }}>
-                  {product.category === 'tech' ? '⚡' : '🐾'}
-                </div>
-              ))}
-            </div>
+
+            {/* Thumbnails */}
+            {allMedia.length > 1 && (
+              <div
+                className="pd-thumbs"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${Math.min(allMedia.length, 5)}, 1fr)`,
+                  gap: '8px',
+                }}
+              >
+                {allMedia.map((src, i) => {
+                  const isVid = isVideo(src)
+                  return (
+                    <div
+                      key={i}
+                      className={`pd-thumb ${activeMedia === i ? 'active' : ''}`}
+                      onClick={() => setActiveMedia(i)}
+                      style={{
+                        background: isDark ? '#130a30' : cat.bg,
+                        border: `2px solid ${activeMedia === i ? cat.accent : isDark ? 'rgba(139,92,246,0.1)' : '#E2DED8'}`,
+                      }}
+                    >
+                      {isVid ? (
+                        <>
+                          <video
+                            src={src} muted
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                          <div className="pd-play-badge">
+                            <Play size={16} color="#fff" fill="#fff" />
+                          </div>
+                        </>
+                      ) : (
+                        <img src={src} alt={`${product.name} ${i + 1}`}
+                          style={{ objectFit: 'contain', padding: '6px' }}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
-          {/* INFO */}
+          {/* ── RIGHT: INFO ── */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <span style={{ fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#2563eb' }}>{product.category}</span>
+
+            {/* Category + rating */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                fontFamily: "'DM Mono', monospace", fontSize: '11px',
+                letterSpacing: '0.12em', textTransform: 'uppercase',
+                color: cat.text,
+              }}>
+                {cat.icon} {cat.label}
+              </div>
               <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
                 {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />)}
-                <span style={{ fontFamily: 'DM Mono', fontSize: '11px', color: '#6b6760', marginLeft: '6px' }}>4.9</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: isDark ? '#6B5B8A' : '#6b6760', marginLeft: '6px' }}>4.9</span>
               </div>
             </div>
 
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(40px, 5vw, 64px)', lineHeight: 0.9, marginBottom: '24px' }}>
+            {/* Title */}
+            <div style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 'clamp(40px, 5vw, 68px)',
+              lineHeight: 0.9, marginBottom: '20px',
+              color: isDark ? '#F3F0FF' : '#080808',
+            }}>
               {product.name.toUpperCase()}
             </div>
 
-            <p style={{ fontSize: '15px', fontWeight: 300, lineHeight: 1.7, color: '#6b6760', marginBottom: '32px' }}>
+            {/* Description */}
+            <p style={{
+              fontSize: '15px', fontWeight: 300, lineHeight: 1.7,
+              color: isDark ? '#9F7AEA' : '#6b6760', marginBottom: '28px',
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
               {product.description}
             </p>
 
-            {/* PRECIO */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', padding: '24px 0', borderTop: '1px solid #e8e6e1', borderBottom: '1px solid #e8e6e1', marginBottom: '32px' }}>
-              <span style={{ fontFamily: 'Bebas Neue', fontSize: '72px', lineHeight: 1 }}>
+            {/* Price */}
+            <div style={{
+              display: 'flex', alignItems: 'baseline', gap: '16px',
+              padding: '24px 0',
+              borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.15)' : '#e8e6e1'}`,
+              borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.15)' : '#e8e6e1'}`,
+              marginBottom: '28px',
+            }}>
+              <span style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '72px', lineHeight: 1,
+                color: isDark ? '#F3F0FF' : '#080808',
+              }}>
                 S/{product.price / 100}
               </span>
               {product.compare_price && (
                 <div>
-                  <div style={{ fontSize: '16px', color: '#b0aca4', textDecoration: 'line-through' }}>
+                  <div style={{ fontSize: '16px', color: isDark ? '#4A3A6A' : '#b0aca4', textDecoration: 'line-through', fontFamily: "'DM Sans', sans-serif" }}>
                     S/{product.compare_price / 100}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>
+                  <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
                     Ahorras S/{(product.compare_price - product.price) / 100}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* BENEFICIOS */}
-            <ul style={{ listStyle: 'none', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {benefits.map((b: string) => (
-                <li key={b} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#dcfce7', border: '1px solid #86efac', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Check size={10} color="#16a34a" />
+            {/* Benefits */}
+            <ul style={{ listStyle: 'none', marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {benefits.map(b => (
+                <li key={b} className="pd-benefit">
+                  <div
+                    className="pd-benefit-icon"
+                    style={{
+                      background: isDark ? 'rgba(139,92,246,0.15)' : '#dcfce7',
+                      border: isDark ? '1px solid rgba(139,92,246,0.3)' : '1px solid #86efac',
+                    }}
+                  >
+                    <Check size={10} color={isDark ? '#A78BFA' : '#16a34a'} />
                   </div>
-                  {b}
+                  <span style={{ color: isDark ? '#C4B5FD' : '#3E3A35', fontFamily: "'DM Sans', sans-serif" }}>{b}</span>
                 </li>
               ))}
             </ul>
 
-            {/* CANTIDAD + AGREGAR */}
+            {/* Qty + Add */}
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f2f1ef', borderRadius: '100px', padding: '6px 16px' }}>
-                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #e8e6e1', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                background: isDark ? 'rgba(139,92,246,0.08)' : '#f2f1ef',
+                borderRadius: '100px', padding: '6px 16px',
+                border: isDark ? '1px solid rgba(139,92,246,0.15)' : 'none',
+              }}>
+                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  border: isDark ? '1px solid rgba(139,92,246,0.25)' : '1.5px solid #e8e6e1',
+                  background: 'transparent', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: isDark ? '#A78BFA' : '#080808',
+                }}>
                   <Minus size={14} />
                 </button>
-                <span style={{ fontFamily: 'DM Mono', fontSize: '15px', minWidth: '24px', textAlign: 'center' }}>{qty}</span>
-                <button onClick={() => setQty(qty + 1)} style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #e8e6e1', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{
+                  fontFamily: "'DM Mono', monospace", fontSize: '15px',
+                  minWidth: '24px', textAlign: 'center',
+                  color: isDark ? '#F3F0FF' : '#080808',
+                }}>{qty}</span>
+                <button onClick={() => setQty(qty + 1)} style={{
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  border: isDark ? '1px solid rgba(139,92,246,0.25)' : '1.5px solid #e8e6e1',
+                  background: 'transparent', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: isDark ? '#A78BFA' : '#080808',
+                }}>
                   <Plus size={14} />
                 </button>
               </div>
+
               <button
+                className={`pd-add-btn ${added ? 'added' : ''}`}
+                style={{ '--accent': added ? '#16a34a' : cat.accent } as React.CSSProperties}
                 onClick={() => {
                   addItem({
                     id: product.id,
@@ -164,25 +434,44 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   setAdded(true)
                   setTimeout(() => setAdded(false), 2000)
                 }}
-                style={{ flex: 1, background: added ? '#16a34a' : '#080808', color: '#fff', border: 'none', borderRadius: '100px', padding: '18px 32px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'DM Sans, sans-serif', transition: 'background 0.3s' }}
               >
-                {added ? <><Check size={16} /> Agregado al carrito</> : <>Agregar — S/{(product.price / 100) * qty}</>}
+                {added
+                  ? <><Check size={16} /> Agregado al carrito</>
+                  : <>Agregar — S/{(product.price / 100) * qty}</>
+                }
               </button>
             </div>
 
-            {/* YAPE */}
-            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+            {/* Yape */}
+            <div style={{
+              background: isDark ? 'rgba(34,197,94,0.08)' : '#f0fdf4',
+              border: isDark ? '1px solid rgba(34,197,94,0.2)' : '1px solid #86efac',
+              borderRadius: '16px', padding: '16px 20px',
+              display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px',
+            }}>
               <span style={{ fontSize: '24px' }}>📱</span>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#15803d' }}>Paga con Yape y ahorra S/5</div>
-                <div style={{ fontSize: '12px', color: '#16a34a' }}>Coordina por WhatsApp tras tu pedido</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#15803d', fontFamily: "'DM Sans', sans-serif" }}>Paga con Yape y ahorra S/5</div>
+                <div style={{ fontSize: '12px', color: '#16a34a', fontFamily: "'DM Sans', sans-serif" }}>Coordina por WhatsApp tras tu pedido</div>
               </div>
             </div>
 
-            {/* TRUST */}
+            {/* Trust bar */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
-              {[{ icon: <Shield size={14} />, text: 'Pago seguro' }, { icon: <Truck size={14} />, text: 'Envío Perú' }, { icon: <Headphones size={14} />, text: 'WhatsApp' }].map(t => (
-                <div key={t.text} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f2f1ef', borderRadius: '12px', padding: '12px', fontSize: '12px', fontWeight: 500, color: '#6b6760' }}>
+              {[
+                { icon: <Shield size={14} />, text: 'Pago seguro' },
+                { icon: <Truck size={14} />, text: 'Envío Perú' },
+                { icon: <Headphones size={14} />, text: 'WhatsApp' },
+              ].map(t => (
+                <div key={t.text} style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: isDark ? 'rgba(139,92,246,0.08)' : '#f2f1ef',
+                  border: isDark ? '1px solid rgba(139,92,246,0.12)' : 'none',
+                  borderRadius: '12px', padding: '12px',
+                  fontSize: '12px', fontWeight: 500,
+                  color: isDark ? '#9F7AEA' : '#6b6760',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
                   {t.icon} {t.text}
                 </div>
               ))}
@@ -190,11 +479,27 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           </div>
         </div>
 
-        {/* TABS */}
-        <div style={{ maxWidth: '1200px', margin: '40px auto 0', padding: '0 48px 80px' }}>
-          <div style={{ borderBottom: '1px solid #e8e6e1', marginBottom: '40px', display: 'flex' }}>
+        {/* ── TABS ── */}
+        <div style={{
+          maxWidth: '1300px', margin: '0 auto',
+          padding: '0 48px 80px',
+          borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.12)' : '#e8e6e1'}`,
+        }}>
+          <div style={{
+            borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.12)' : '#e8e6e1'}`,
+            marginBottom: '40px', display: 'flex',
+          }}>
             {(['specs', 'reviews', 'faq'] as const).map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} style={{ fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '12px 24px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeTab === tab ? '#080808' : 'transparent'}`, cursor: 'pointer', color: activeTab === tab ? '#080808' : '#6b6760' }}>
+              <button
+                key={tab}
+                className="pd-tab"
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  borderBottom: `2px solid ${activeTab === tab ? cat.accent : 'transparent'}`,
+                  color: activeTab === tab ? (isDark ? '#C4B5FD' : '#080808') : (isDark ? '#6B5B8A' : '#6b6760'),
+                }}
+              >
                 {tab === 'specs' ? 'Especificaciones' : tab === 'reviews' ? 'Opiniones' : 'FAQ'}
               </button>
             ))}
@@ -203,22 +508,37 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           {activeTab === 'specs' && (
             <div style={{ maxWidth: '600px' }}>
               {[
-                { label: 'Categoría', value: product.category },
-                { label: 'Stock', value: `${product.stock} unidades` },
-                { label: 'Peso', value: product.weight_grams ? `${product.weight_grams}g` : 'N/A' },
-                { label: 'Proveedor', value: product.supplier },
-                { label: 'Garantía', value: '12 meses' },
-              ].map((s: any) => (
-                <div key={s.label} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '16px 0', borderBottom: '1px solid #e8e6e1' }}>
-                  <span style={{ fontFamily: 'DM Mono', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b6760' }}>{s.label}</span>
-                  <span style={{ fontWeight: 600 }}>{s.value}</span>
+                { label: 'Categoría',  value: product.category },
+                { label: 'Stock',      value: `${product.stock} unidades` },
+                { label: 'Peso',       value: product.weight_grams ? `${product.weight_grams}g` : 'N/A' },
+                { label: 'Proveedor',  value: product.supplier },
+                { label: 'Garantía',   value: '12 meses' },
+              ].map(s => (
+                <div key={s.label} style={{
+                  display: 'grid', gridTemplateColumns: '1fr 1fr',
+                  padding: '16px 0',
+                  borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}`,
+                }}>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace", fontSize: '11px',
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                    color: isDark ? '#6B5B8A' : '#6b6760',
+                  }}>{s.label}</span>
+                  <span style={{
+                    fontWeight: 600,
+                    color: isDark ? '#F3F0FF' : '#080808',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>{s.value}</span>
                 </div>
               ))}
             </div>
           )}
 
           {activeTab === 'reviews' && (
-            <p style={{ color: '#6b6760', fontFamily: 'DM Mono', fontSize: '12px' }}>
+            <p style={{
+              color: isDark ? '#6B5B8A' : '#6b6760',
+              fontFamily: "'DM Mono', monospace", fontSize: '12px',
+            }}>
               Aún no hay reseñas. ¡Sé el primero en opinar!
             </p>
           )}
@@ -229,10 +549,21 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 { q: '¿Cuánto demora el envío?', a: 'Lima 2-3 días hábiles. Provincias 5-7 días hábiles.' },
                 { q: '¿Puedo devolver el producto?', a: '30 días de garantía de devolución sin preguntas.' },
                 { q: '¿Cómo pago con Yape?', a: 'Selecciona Yape en el checkout y te enviamos el QR por WhatsApp.' },
-              ].map((f: any) => (
-                <div key={f.q} style={{ padding: '24px 0', borderBottom: '1px solid #e8e6e1' }}>
-                  <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>{f.q}</div>
-                  <div style={{ fontSize: '14px', lineHeight: 1.6, color: '#6b6760' }}>{f.a}</div>
+              ].map(f => (
+                <div key={f.q} style={{
+                  padding: '24px 0',
+                  borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}`,
+                }}>
+                  <div style={{
+                    fontSize: '15px', fontWeight: 700, marginBottom: '8px',
+                    color: isDark ? '#F3F0FF' : '#080808',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>{f.q}</div>
+                  <div style={{
+                    fontSize: '14px', lineHeight: 1.6,
+                    color: isDark ? '#9F7AEA' : '#6b6760',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>{f.a}</div>
                 </div>
               ))}
             </div>
