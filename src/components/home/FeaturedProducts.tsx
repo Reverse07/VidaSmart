@@ -42,8 +42,7 @@ function ProductCard({ p }: { p: Product }) {
         style={{
           background: p.category === 'gaming' ? '#0f0a1a' : '#fff',
           border: `1px solid ${p.category === 'gaming' ? 'rgba(139,92,246,0.2)' : '#E2DED8'}`,
-          borderRadius: '24px',
-          overflow: 'hidden',
+          borderRadius: '24px', overflow: 'hidden',
           transition: 'transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease',
         }}
         onMouseEnter={e => {
@@ -57,14 +56,12 @@ function ProductCard({ p }: { p: Product }) {
           ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
         }}
       >
-        {/* Image area */}
+        {/* Image */}
         <div style={{
-          background: style.bg,
-          aspectRatio: '1',
+          background: style.bg, aspectRatio: '1',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', overflow: 'hidden',
         }}>
-          {/* Ambient glow for gaming */}
           {p.category === 'gaming' && (
             <div style={{
               position: 'absolute', inset: 0,
@@ -72,56 +69,41 @@ function ProductCard({ p }: { p: Product }) {
               pointerEvents: 'none',
             }} />
           )}
-
           {p.images?.[0] ? (
-            <img
-              src={p.images[0]}
-              alt={p.name}
-              style={{
-                width: '80%', height: '80%', objectFit: 'contain',
-                position: 'relative', zIndex: 1,
-                filter: p.category === 'gaming' ? 'drop-shadow(0 8px 16px rgba(139,92,246,0.3))' : 'none',
-              }}
-            />
+            <img src={p.images[0]} alt={p.name} style={{
+              width: '80%', height: '80%', objectFit: 'contain',
+              position: 'relative', zIndex: 1,
+              filter: p.category === 'gaming' ? 'drop-shadow(0 8px 16px rgba(139,92,246,0.3))' : 'none',
+            }} />
           ) : (
             <div style={{
               width: '80px', height: '80px',
               background: p.category === 'gaming' ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.8)',
-              borderRadius: '20px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               backdropFilter: 'blur(8px)',
               border: p.category === 'gaming' ? '1px solid rgba(139,92,246,0.3)' : 'none',
               position: 'relative', zIndex: 1,
-            }}>
-              {style.icon}
-            </div>
+            }}>{style.icon}</div>
           )}
-
-          {/* Discount badge */}
           {discount > 0 && (
             <div style={{
               position: 'absolute', top: '14px', right: '14px',
               background: style.accent, color: '#fff',
               fontFamily: "'DM Mono', monospace", fontSize: '10px',
-              padding: '4px 8px', borderRadius: '100px',
-              zIndex: 2,
+              padding: '4px 8px', borderRadius: '100px', zIndex: 2,
             }}>-{discount}%</div>
           )}
-
-          {/* Gaming: peso badge */}
           {p.category === 'gaming' && (
             <div style={{
               position: 'absolute', bottom: '14px', left: '14px',
-              background: 'rgba(139,92,246,0.15)',
-              border: '1px solid rgba(139,92,246,0.25)',
+              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)',
               borderRadius: '100px', padding: '3px 10px',
               fontFamily: "'DM Mono', monospace", fontSize: '9px',
               color: '#C4B5FD', letterSpacing: '0.08em',
               backdropFilter: 'blur(8px)', zIndex: 2,
               display: 'flex', alignItems: 'center', gap: '4px',
             }}>
-              <Mouse size={9} color="#A78BFA" />
-              PERIFÉRICO
+              <Mouse size={9} color="#A78BFA" /> PERIFÉRICO
             </div>
           )}
         </div>
@@ -131,25 +113,19 @@ function ProductCard({ p }: { p: Product }) {
           <p style={{
             fontFamily: "'DM Mono', monospace", fontSize: '10px',
             letterSpacing: '0.1em', textTransform: 'uppercase',
-            color: p.category === 'gaming' ? '#7C3AED' : '#A09890',
-            marginBottom: '6px',
+            color: p.category === 'gaming' ? '#7C3AED' : '#A09890', marginBottom: '6px',
           }}>{style.label}</p>
-
           <h3 style={{
             fontSize: '15px', fontWeight: 600, lineHeight: 1.3,
             color: p.category === 'gaming' ? '#F3F0FF' : '#080808',
             marginBottom: '6px', fontFamily: "'DM Sans', sans-serif",
           }}>{p.name}</h3>
-
           <p style={{
-            fontSize: '12px',
-            color: p.category === 'gaming' ? '#6B5B8A' : '#7A7269',
-            marginBottom: '16px', lineHeight: 1.5,
-            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px', color: p.category === 'gaming' ? '#6B5B8A' : '#7A7269',
+            marginBottom: '16px', lineHeight: 1.5, fontFamily: "'DM Sans', sans-serif",
             display: '-webkit-box', WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>{p.description}</p>
-
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
               <span style={{
@@ -164,20 +140,16 @@ function ProductCard({ p }: { p: Product }) {
                 }}>S/{p.compare_price / 100}</span>
               )}
             </div>
-            <button
-              onClick={handleAdd}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                background: added ? '#16A34A' : style.accent,
-                color: '#fff', border: 'none',
-                borderRadius: '100px', padding: '9px 16px',
-                fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif",
-                transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
-                transform: added ? 'scale(0.97)' : 'scale(1)',
-                boxShadow: added ? 'none' : p.category === 'gaming' ? '0 4px 14px rgba(139,92,246,0.4)' : 'none',
-              }}
-            >
+            <button onClick={handleAdd} style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: added ? '#16A34A' : style.accent,
+              color: '#fff', border: 'none', borderRadius: '100px', padding: '9px 16px',
+              fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+              fontFamily: "'DM Sans', sans-serif",
+              transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
+              transform: added ? 'scale(0.97)' : 'scale(1)',
+              boxShadow: added ? 'none' : p.category === 'gaming' ? '0 4px 14px rgba(139,92,246,0.4)' : 'none',
+            }}>
               {added ? <><Check size={12} /> Listo</> : <><Plus size={12} /> Agregar</>}
             </button>
           </div>
@@ -192,7 +164,6 @@ function SkeletonCard({ dark = false }: { dark?: boolean }) {
     ? 'linear-gradient(90deg, #1a1030 25%, #251845 50%, #1a1030 75%)'
     : 'linear-gradient(90deg, #F2F1EF 25%, #E8E6E1 50%, #F2F1EF 75%)'
   const blockBg = dark ? '#1a1030' : '#F2F1EF'
-
   return (
     <div style={{
       borderRadius: '24px', overflow: 'hidden',
@@ -241,19 +212,25 @@ export default function FeaturedProducts() {
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-      setProducts(data ?? [])
+      if (filter === 'all') {
+        // 5 destacados de cada categoría
+        const [gaming, tech, mascotas] = await Promise.all([
+          supabase.from('products').select('*').eq('is_active', true).eq('category', 'gaming').order('created_at', { ascending: false }).limit(5),
+          supabase.from('products').select('*').eq('is_active', true).eq('category', 'tech').order('created_at', { ascending: false }).limit(5),
+          supabase.from('products').select('*').eq('is_active', true).eq('category', 'mascotas').order('created_at', { ascending: false }).limit(5),
+        ])
+        setProducts([...(gaming.data ?? []), ...(tech.data ?? []), ...(mascotas.data ?? [])])
+      } else {
+        // Categoría específica: mostrar 8
+        const { data } = await supabase
+          .from('products').select('*').eq('is_active', true).eq('category', filter)
+          .order('created_at', { ascending: false }).limit(8)
+        setProducts(data ?? [])
+      }
       setLoading(false)
     }
     load()
-  }, [])
-
-  const filtered = filter === 'all' ? products : products.filter(p => p.category === filter)
-  const activeFilter = FILTERS.find(f => f.key === filter)!
+  }, [filter])
 
   return (
     <>
@@ -267,7 +244,6 @@ export default function FeaturedProducts() {
           transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
         }
         .fp-reveal.in { opacity: 1; transform: translateY(0); }
-
         .filter-pill {
           font-family: 'DM Mono', monospace;
           font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -313,23 +289,32 @@ export default function FeaturedProducts() {
           </div>
 
           {/* Filters */}
-          <div
-            className={`fp-reveal ${visible ? 'in' : ''}`}
+          <div className={`fp-reveal ${visible ? 'in' : ''}`}
             style={{ display: 'flex', gap: '8px', marginBottom: '40px', transitionDelay: '0.1s', flexWrap: 'wrap' }}
           >
             {FILTERS.map(f => (
-              <button
-                key={f.key}
-                className="filter-pill"
-                onClick={() => setFilter(f.key)}
-                style={{
-                  background: filter === f.key ? f.accent : 'transparent',
-                  borderColor: filter === f.key ? f.accent : '#E2DED8',
-                  color: filter === f.key ? '#fff' : '#A09890',
-                  boxShadow: filter === f.key && f.key === 'gaming' ? '0 4px 14px rgba(139,92,246,0.35)' : 'none',
-                }}
-              >{f.label}</button>
+              <button key={f.key} className="filter-pill" onClick={() => setFilter(f.key)} style={{
+                background: filter === f.key ? f.accent : 'transparent',
+                borderColor: filter === f.key ? f.accent : '#E2DED8',
+                color: filter === f.key ? '#fff' : '#A09890',
+                boxShadow: filter === f.key && f.key === 'gaming' ? '0 4px 14px rgba(139,92,246,0.35)' : 'none',
+              }}>{f.label}</button>
             ))}
+          </div>
+
+          {/* Contador */}
+          <div className={`fp-reveal ${visible ? 'in' : ''}`} style={{
+            marginBottom: '24px', transitionDelay: '0.15s',
+          }}>
+            <span style={{
+              fontFamily: "'DM Mono', monospace", fontSize: '10px',
+              letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C8C3BB',
+            }}>
+              {filter === 'all'
+                ? 'Mostrando 5 de cada categoría'
+                : `Mostrando ${products.length} productos`
+              }
+            </span>
           </div>
 
           {/* Grid */}
@@ -339,21 +324,48 @@ export default function FeaturedProducts() {
             gap: '16px',
           }}>
             {loading
-              ? [...Array(4)].map((_, i) => <SkeletonCard key={i} dark={filter === 'gaming'} />)
-              : filtered.map((p, i) => (
-                <div
-                  key={p.slug}
-                  style={{
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? 'translateY(0)' : 'translateY(20px)',
-                    transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.07}s, transform 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.07}s`,
-                  }}
-                >
+              ? [...Array(filter === 'all' ? 15 : 8)].map((_, i) => (
+                  <SkeletonCard key={i} dark={filter === 'gaming'} />
+                ))
+              : products.map((p, i) => (
+                <div key={p.slug} style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(20px)',
+                  transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.05}s, transform 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.05}s`,
+                }}>
                   <ProductCard p={p} />
                 </div>
               ))
             }
           </div>
+
+          {/* Ver más */}
+          {!loading && (
+            <div className={`fp-reveal ${visible ? 'in' : ''}`} style={{
+              textAlign: 'center', marginTop: '48px',
+            }}>
+              <Link href={filter === 'all' ? '/productos' : `/productos?cat=${filter}`} style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                fontFamily: "'DM Mono', monospace", fontSize: '11px',
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#7A7269', textDecoration: 'none',
+                padding: '12px 28px', borderRadius: '100px',
+                border: '1.5px solid #E2DED8',
+                transition: 'all 0.2s ease',
+              }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = '#080808'
+                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#080808'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2DED8'
+                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#7A7269'
+                }}
+              >
+                Ver catálogo completo <ArrowRight size={12} />
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     </>
