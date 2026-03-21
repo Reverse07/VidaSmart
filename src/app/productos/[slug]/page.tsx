@@ -13,7 +13,9 @@ const CAT = {
   mascotas: { bg: '#FFF7ED', accent: '#D97706', text: '#D97706', label: 'Mascotas', icon: <PawPrint size={14} color="#D97706" /> },
 }
 
-const ZOOM = 2.5 // zoom multiplier
+const ZOOM       = 2.5   // zoom multiplier
+const ZOOM_PANEL = 440   // zoom result panel px
+const LENS_SIZE  = 120   // lens circle px
 
 function isVideo(src: string) {
   return src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.mov')
@@ -22,28 +24,24 @@ function isVideo(src: string) {
 export default function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug }        = React.use(params)
   const [qty, setQty]   = useState(1)
-  const [activeTab, setActiveTab]   = useState<'specs' | 'reviews' | 'faq'>('specs')
-  const [added, setAdded]           = useState(false)
-  const [product, setProduct]       = useState<any>(null)
-  const [loading, setLoading]       = useState(true)
+  const [activeTab, setActiveTab]     = useState<'specs' | 'reviews' | 'faq'>('specs')
+  const [added, setAdded]             = useState(false)
+  const [product, setProduct]         = useState<any>(null)
+  const [loading, setLoading]         = useState(true)
   const [activeMedia, setActiveMedia] = useState(0)
 
-  // Zoom state
-  const [zooming, setZooming]       = useState(false)
-  const [zoomPos, setZoomPos]       = useState({ x: 50, y: 50 })
-  const [lensPos, setLensPos]       = useState({ x: 0, y: 0 })
-  const imgContainerRef             = useRef<HTMLDivElement>(null)
-  const LENS_SIZE = 120
+  // Zoom state — xFrac/yFrac are 0‥1
+  const [zooming, setZooming]   = useState(false)
+  const [zoomPos, setZoomPos]   = useState({ x: 0.5, y: 0.5 })
+  const [lensPos, setLensPos]   = useState({ x: 0, y: 0 })
+  const imgContainerRef         = useRef<HTMLDivElement>(null)
 
   const addItem = useCartStore(state => state.addItem)
 
   useEffect(() => {
     async function fetchProduct() {
       const { data } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', slug)
-        .single()
+        .from('products').select('*').eq('slug', slug).single()
       setProduct(data)
       setLoading(false)
     }
@@ -56,14 +54,16 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     const rect = el.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    const xPct = Math.max(0, Math.min(100, (x / rect.width) * 100))
-    const yPct = Math.max(0, Math.min(100, (y / rect.height) * 100))
 
-    // lens clamped so it stays inside the box
+    // 0‥1 fraction — used directly for zoom panel offset
+    const xFrac = Math.max(0, Math.min(1, x / rect.width))
+    const yFrac = Math.max(0, Math.min(1, y / rect.height))
+
+    // lens circle clamped inside the container
     const lensX = Math.max(LENS_SIZE / 2, Math.min(rect.width  - LENS_SIZE / 2, x)) - LENS_SIZE / 2
     const lensY = Math.max(LENS_SIZE / 2, Math.min(rect.height - LENS_SIZE / 2, y)) - LENS_SIZE / 2
 
-    setZoomPos({ x: xPct, y: yPct })
+    setZoomPos({ x: xFrac, y: yFrac })
     setLensPos({ x: lensX, y: lensY })
   }, [])
 
@@ -84,16 +84,20 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     )
   }
 
-  const cat     = CAT[product.category as keyof typeof CAT] ?? CAT.tech
-  const isDark  = product.category === 'gaming'
+  const cat      = CAT[product.category as keyof typeof CAT] ?? CAT.tech
+  const isDark   = product.category === 'gaming'
   const discount = product.compare_price
     ? Math.round((1 - product.price / product.compare_price) * 100)
     : 0
 
-  const allMedia: string[] = product.images ?? []
-  const currentMedia = allMedia[activeMedia]
-  const isCurrentVideo = currentMedia ? isVideo(currentMedia) : false
-  const canZoom = !isCurrentVideo && !!currentMedia
+  const allMedia: string[]  = product.images ?? []
+  const currentMedia        = allMedia[activeMedia]
+  const isCurrentVideo      = currentMedia ? isVideo(currentMedia) : false
+  const canZoom             = !isCurrentVideo && !!currentMedia
+
+  // zoom panel image offset: how many px to shift so the right region shows
+  const zoomImgLeft = -(zoomPos.x * (ZOOM - 1) * ZOOM_PANEL)
+  const zoomImgTop  = -(zoomPos.y * (ZOOM - 1) * ZOOM_PANEL)
 
   const benefits = ['Alta calidad premium', 'Garantía 30 días', 'Envío a todo Perú', 'Soporte por WhatsApp']
 
@@ -101,12 +105,11 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-
         .pd-page { min-height: 100vh; font-family: 'DM Sans', sans-serif; }
 
         .pd-thumb {
-          aspect-ratio: 1; border-radius: 12px; overflow: hidden;
-          cursor: pointer; border: 2px solid transparent;
+          aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer;
+          border: 2px solid transparent;
           transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
           display: flex; align-items: center; justify-content: center; position: relative;
         }
@@ -120,72 +123,57 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           background: rgba(0,0,0,0.3); border-radius: inherit;
         }
 
-        /* Main image container */
         .pd-main-wrap {
-          position: relative;
-          border-radius: 28px; overflow: hidden;
+          position: relative; border-radius: 28px; overflow: hidden;
           aspect-ratio: 1;
           display: flex; align-items: center; justify-content: center;
         }
         .pd-main-wrap img {
           width: 85%; height: 85%; object-fit: contain;
           position: relative; z-index: 1;
-          transition: opacity 0.2s ease;
+          pointer-events: none; user-select: none;
+          transition: opacity 0.15s ease;
           display: block;
-          pointer-events: none;
-          user-select: none;
         }
         .pd-main-wrap.zooming { cursor: crosshair; }
 
-        /* Lens overlay */
+        /* Lens */
         .pd-lens {
           position: absolute;
           width: ${LENS_SIZE}px; height: ${LENS_SIZE}px;
           border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.6);
-          background: rgba(255,255,255,0.12);
-          backdrop-filter: blur(0px);
-          pointer-events: none;
-          z-index: 10;
-          box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.2);
+          border: 2px solid rgba(255,255,255,0.55);
+          background: rgba(255,255,255,0.08);
+          pointer-events: none; z-index: 10;
+          box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.25);
         }
 
-        /* Zoom result panel */
+        /* Zoom panel */
         .pd-zoom-result {
           position: absolute;
-          left: calc(100% + 16px);
-          top: 0;
-          width: 440px;
-          height: 440px;
-          border-radius: 20px;
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.12);
-          box-shadow: 0 24px 64px rgba(0,0,0,0.25);
-          z-index: 50;
-          pointer-events: none;
-          background: #0a0a12;
+          left: calc(100% + 16px); top: 0;
+          width: ${ZOOM_PANEL}px; height: ${ZOOM_PANEL}px;
+          border-radius: 20px; overflow: hidden;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+          z-index: 50; pointer-events: none;
         }
         .pd-zoom-result img {
           position: absolute;
           width: ${ZOOM * 100}%;
           height: ${ZOOM * 100}%;
           object-fit: contain;
-          transform-origin: top left;
-          pointer-events: none;
-          user-select: none;
+          pointer-events: none; user-select: none;
         }
 
         .pd-add-btn {
-          flex: 1; background: var(--accent); color: #fff; border: none;
+          flex: 1; color: #fff; border: none;
           border-radius: 100px; padding: 18px 32px;
           font-size: 15px; font-weight: 700; cursor: pointer;
           display: flex; align-items: center; justify-content: center; gap: 8px;
           font-family: 'DM Sans', sans-serif;
           transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        .pd-add-btn:hover { transform: scale(1.02); }
-        .pd-add-btn.added { background: #16a34a !important; box-shadow: none; }
+        .pd-add-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
 
         .pd-tab {
           font-family: 'DM Mono', monospace;
@@ -193,10 +181,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           padding: 12px 24px; background: transparent; border: none; cursor: pointer;
           transition: color 0.2s, border-color 0.2s;
         }
-
-        .pd-benefit {
-          display: flex; gap: 10px; align-items: flex-start; font-size: 14px;
-        }
+        .pd-benefit { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
 
         @media (max-width: 900px) {
           .pd-grid { grid-template-columns: 1fr !important; }
@@ -204,18 +189,15 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
         }
       `}</style>
 
-      <div
-        className="pd-page"
-        style={{
-          background: isDark ? '#080610' : '#FAFAF8',
-          '--accent': cat.accent,
-        } as React.CSSProperties}
-      >
+      <div className="pd-page" style={{
+        background: isDark ? '#080610' : '#FAFAF8',
+        '--accent': cat.accent,
+      } as React.CSSProperties}>
+
         {/* Back */}
         <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '32px 48px 0' }}>
           <Link href="/productos" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none',
             color: isDark ? '#7C3AED' : '#6b6760',
             fontFamily: "'DM Mono', monospace", fontSize: '11px',
             letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -226,8 +208,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
         {/* Main grid */}
         <div className="pd-grid" style={{
-          maxWidth: '1300px', margin: '0 auto',
-          padding: '40px 48px 80px',
+          maxWidth: '1300px', margin: '0 auto', padding: '40px 48px 80px',
           display: 'grid', gridTemplateColumns: '1fr 1fr',
           gap: '72px', alignItems: 'start',
         }}>
@@ -235,7 +216,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           {/* ── GALLERY ── */}
           <div style={{ position: 'sticky', top: '90px' }}>
 
-            {/* Main media + zoom */}
+            {/* Wrapper that holds both main image and zoom panel */}
             <div style={{ position: 'relative', marginBottom: '12px' }}>
               <div
                 ref={imgContainerRef}
@@ -249,6 +230,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 onMouseLeave={() => setZooming(false)}
                 onMouseMove={canZoom ? handleMouseMove : undefined}
               >
+                {/* Gaming glow */}
                 {isDark && (
                   <div style={{
                     position: 'absolute', inset: 0,
@@ -265,11 +247,10 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                     </video>
                   ) : (
                     <img
-                      src={currentMedia}
-                      alt={product.name}
+                      src={currentMedia} alt={product.name}
                       style={{
                         filter: isDark ? 'drop-shadow(0 12px 24px rgba(139,92,246,0.25))' : 'none',
-                        opacity: zooming ? 0.85 : 1,
+                        opacity: zooming ? 0.82 : 1,
                       }}
                     />
                   )
@@ -290,12 +271,9 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   }}>-{discount}%</div>
                 )}
 
-                {/* Lens */}
+                {/* Lens circle */}
                 {zooming && canZoom && (
-                  <div className="pd-lens" style={{
-                    left: lensPos.x,
-                    top: lensPos.y,
-                  }} />
+                  <div className="pd-lens" style={{ left: lensPos.x, top: lensPos.y }} />
                 )}
 
                 {/* Zoom hint */}
@@ -305,7 +283,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                     background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
                     borderRadius: '100px', padding: '5px 12px',
                     fontFamily: "'DM Mono', monospace", fontSize: '9px',
-                    color: 'rgba(255,255,255,0.6)', letterSpacing: '0.08em',
+                    color: 'rgba(255,255,255,0.55)', letterSpacing: '0.08em',
                     pointerEvents: 'none', zIndex: 3,
                   }}>
                     🔍 PASA EL CURSOR PARA ZOOM
@@ -313,18 +291,18 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 )}
               </div>
 
-              {/* Zoom result panel */}
+              {/* ── ZOOM RESULT PANEL ── */}
               {zooming && canZoom && (
                 <div className="pd-zoom-result" style={{
                   background: isDark ? '#0a0614' : '#fff',
-                  border: isDark ? '1px solid rgba(139,92,246,0.2)' : '1px solid #E2DED8',
+                  border: isDark ? '1px solid rgba(139,92,246,0.25)' : '1px solid #E2DED8',
                 }}>
                   <img
                     src={currentMedia}
                     alt="zoom"
                     style={{
-                      left: `-${(zoomPos.x / 100) * (ZOOM - 1) * 440}px`,
-                      top:  `-${(zoomPos.y / 100) * (ZOOM - 1) * 440}px`,
+                      left: `${zoomImgLeft}px`,
+                      top:  `${zoomImgTop}px`,
                       filter: isDark ? 'drop-shadow(0 0 20px rgba(139,92,246,0.2))' : 'none',
                     }}
                   />
@@ -477,11 +455,17 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   <Plus size={14} />
                 </button>
               </div>
+
               <button
                 className={`pd-add-btn ${added ? 'added' : ''}`}
-                style={{ '--accent': added ? '#16a34a' : cat.accent } as React.CSSProperties}
+                style={{ background: added ? '#16a34a' : cat.accent }}
                 onClick={() => {
-                  addItem({ id: product.id, name: product.name, price: product.price / 100, image: product.images?.[0] ?? '', quantity: qty, slug: product.slug })
+                  addItem({
+                    id: product.id, name: product.name,
+                    price: product.price / 100,
+                    image: product.images?.[0] ?? '',
+                    quantity: qty, slug: product.slug,
+                  })
                   setAdded(true)
                   setTimeout(() => setAdded(false), 2000)
                 }}
