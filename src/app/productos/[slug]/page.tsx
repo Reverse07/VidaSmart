@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import React from 'react'
 import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint } from 'lucide-react'
 import Link from 'next/link'
@@ -12,6 +12,8 @@ const CAT = {
   tech:     { bg: '#EFF6FF', accent: '#2563EB', text: '#2563EB', label: 'Tech',   icon: <Zap size={14} color="#2563EB" /> },
   mascotas: { bg: '#FFF7ED', accent: '#D97706', text: '#D97706', label: 'Mascotas', icon: <PawPrint size={14} color="#D97706" /> },
 }
+
+const ZOOM = 2.5 // zoom multiplier
 
 function isVideo(src: string) {
   return src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.mov')
@@ -25,6 +27,14 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
   const [product, setProduct]       = useState<any>(null)
   const [loading, setLoading]       = useState(true)
   const [activeMedia, setActiveMedia] = useState(0)
+
+  // Zoom state
+  const [zooming, setZooming]       = useState(false)
+  const [zoomPos, setZoomPos]       = useState({ x: 50, y: 50 })
+  const [lensPos, setLensPos]       = useState({ x: 0, y: 0 })
+  const imgContainerRef             = useRef<HTMLDivElement>(null)
+  const LENS_SIZE = 120
+
   const addItem = useCartStore(state => state.addItem)
 
   useEffect(() => {
@@ -39,6 +49,23 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     }
     fetchProduct()
   }, [slug])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = imgContainerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const xPct = Math.max(0, Math.min(100, (x / rect.width) * 100))
+    const yPct = Math.max(0, Math.min(100, (y / rect.height) * 100))
+
+    // lens clamped so it stays inside the box
+    const lensX = Math.max(LENS_SIZE / 2, Math.min(rect.width  - LENS_SIZE / 2, x)) - LENS_SIZE / 2
+    const lensY = Math.max(LENS_SIZE / 2, Math.min(rect.height - LENS_SIZE / 2, y)) - LENS_SIZE / 2
+
+    setZoomPos({ x: xPct, y: yPct })
+    setLensPos({ x: lensX, y: lensY })
+  }, [])
 
   if (loading) {
     return (
@@ -63,17 +90,12 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     ? Math.round((1 - product.price / product.compare_price) * 100)
     : 0
 
-  // All media: images + videos
   const allMedia: string[] = product.images ?? []
   const currentMedia = allMedia[activeMedia]
   const isCurrentVideo = currentMedia ? isVideo(currentMedia) : false
+  const canZoom = !isCurrentVideo && !!currentMedia
 
-  const benefits = [
-    'Alta calidad premium',
-    'Garantía 30 días',
-    'Envío a todo Perú',
-    'Soporte por WhatsApp',
-  ]
+  const benefits = ['Alta calidad premium', 'Garantía 30 días', 'Envío a todo Perú', 'Soporte por WhatsApp']
 
   return (
     <>
@@ -82,59 +104,81 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
         .pd-page { min-height: 100vh; font-family: 'DM Sans', sans-serif; }
 
-        /* ── THUMBNAIL ── */
         .pd-thumb {
-          aspect-ratio: 1;
-          border-radius: 12px;
-          overflow: hidden;
-          cursor: pointer;
-          border: 2px solid transparent;
+          aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+          cursor: pointer; border: 2px solid transparent;
           transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
-          display: flex; align-items: center; justify-content: center;
-          position: relative;
+          display: flex; align-items: center; justify-content: center; position: relative;
         }
         .pd-thumb:hover { transform: translateY(-2px); }
         .pd-thumb.active { border-color: var(--accent) !important; }
         .pd-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ── VIDEO PLAY BTN ── */
         .pd-play-badge {
           position: absolute; inset: 0;
           display: flex; align-items: center; justify-content: center;
-          background: rgba(0,0,0,0.3);
-          border-radius: inherit;
+          background: rgba(0,0,0,0.3); border-radius: inherit;
         }
 
-        /* ── MAIN IMG ── */
-        .pd-main-media {
-          border-radius: 28px;
-          overflow: hidden;
+        /* Main image container */
+        .pd-main-wrap {
+          position: relative;
+          border-radius: 28px; overflow: hidden;
           aspect-ratio: 1;
           display: flex; align-items: center; justify-content: center;
-          position: relative;
-          transition: background 0.4s ease;
         }
-        .pd-main-media img {
-          width: 85%; height: 85%;
-          object-fit: contain;
+        .pd-main-wrap img {
+          width: 85%; height: 85%; object-fit: contain;
           position: relative; z-index: 1;
-          transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+          transition: opacity 0.2s ease;
+          display: block;
+          pointer-events: none;
+          user-select: none;
         }
-        .pd-main-media:hover img { transform: scale(1.04); }
-        .pd-main-media video {
-          width: 100%; height: 100%;
-          object-fit: cover;
+        .pd-main-wrap.zooming { cursor: crosshair; }
+
+        /* Lens overlay */
+        .pd-lens {
+          position: absolute;
+          width: ${LENS_SIZE}px; height: ${LENS_SIZE}px;
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.6);
+          background: rgba(255,255,255,0.12);
+          backdrop-filter: blur(0px);
+          pointer-events: none;
+          z-index: 10;
+          box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* ── ADD BUTTON ── */
+        /* Zoom result panel */
+        .pd-zoom-result {
+          position: absolute;
+          left: calc(100% + 16px);
+          top: 0;
+          width: 440px;
+          height: 440px;
+          border-radius: 20px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.12);
+          box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+          z-index: 50;
+          pointer-events: none;
+          background: #0a0a12;
+        }
+        .pd-zoom-result img {
+          position: absolute;
+          width: ${ZOOM * 100}%;
+          height: ${ZOOM * 100}%;
+          object-fit: contain;
+          transform-origin: top left;
+          pointer-events: none;
+          user-select: none;
+        }
+
         .pd-add-btn {
-          flex: 1;
-          background: var(--accent);
-          color: #fff; border: none;
-          border-radius: 100px;
-          padding: 18px 32px;
-          font-size: 15px; font-weight: 700;
-          cursor: pointer;
+          flex: 1; background: var(--accent); color: #fff; border: none;
+          border-radius: 100px; padding: 18px 32px;
+          font-size: 15px; font-weight: 700; cursor: pointer;
           display: flex; align-items: center; justify-content: center; gap: 8px;
           font-family: 'DM Sans', sans-serif;
           transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
@@ -143,26 +187,20 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
         .pd-add-btn:hover { transform: scale(1.02); }
         .pd-add-btn.added { background: #16a34a !important; box-shadow: none; }
 
-        /* ── TABS ── */
         .pd-tab {
-          fontFamily: "'DM Mono', monospace";
+          font-family: 'DM Mono', monospace;
           font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-          padding: 12px 24px; background: transparent; border: none;
-          cursor: pointer; transition: color 0.2s, border-color 0.2s;
+          padding: 12px 24px; background: transparent; border: none; cursor: pointer;
+          transition: color 0.2s, border-color 0.2s;
         }
 
-        /* ── BENEFIT ITEM ── */
         .pd-benefit {
           display: flex; gap: 10px; align-items: flex-start; font-size: 14px;
-        }
-        .pd-benefit-icon {
-          width: 20px; height: 20px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         @media (max-width: 900px) {
           .pd-grid { grid-template-columns: 1fr !important; }
-          .pd-thumbs { grid-template-columns: repeat(4, 1fr) !important; }
+          .pd-zoom-result { display: none !important; }
         }
       `}</style>
 
@@ -173,7 +211,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           '--accent': cat.accent,
         } as React.CSSProperties}
       >
-        {/* Back link */}
+        {/* Back */}
         <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '32px 48px 0' }}>
           <Link href="/productos" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -187,95 +225,127 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
         </div>
 
         {/* Main grid */}
-        <div
-          className="pd-grid"
-          style={{
-            maxWidth: '1300px', margin: '0 auto',
-            padding: '40px 48px 80px',
-            display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: '72px', alignItems: 'start',
-          }}
-        >
+        <div className="pd-grid" style={{
+          maxWidth: '1300px', margin: '0 auto',
+          padding: '40px 48px 80px',
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          gap: '72px', alignItems: 'start',
+        }}>
 
-          {/* ── LEFT: GALLERY ── */}
+          {/* ── GALLERY ── */}
           <div style={{ position: 'sticky', top: '90px' }}>
 
-            {/* Main media */}
-            <div
-              className="pd-main-media"
-              style={{
-                background: isDark
-                  ? 'linear-gradient(145deg, #0c0820, #130a30)'
-                  : cat.bg,
-                border: isDark ? '1px solid rgba(139,92,246,0.2)' : 'none',
-                marginBottom: '12px',
-                boxShadow: isDark
-                  ? '0 24px 64px rgba(139,92,246,0.12)'
-                  : '0 8px 32px rgba(0,0,0,0.06)',
-              }}
-            >
-              {/* Gaming ambient glow */}
-              {isDark && (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.12), transparent 65%)',
-                  pointerEvents: 'none',
-                }} />
-              )}
+            {/* Main media + zoom */}
+            <div style={{ position: 'relative', marginBottom: '12px' }}>
+              <div
+                ref={imgContainerRef}
+                className={`pd-main-wrap ${zooming && canZoom ? 'zooming' : ''}`}
+                style={{
+                  background: isDark ? 'linear-gradient(145deg, #0c0820, #130a30)' : cat.bg,
+                  border: isDark ? '1px solid rgba(139,92,246,0.2)' : 'none',
+                  boxShadow: isDark ? '0 24px 64px rgba(139,92,246,0.12)' : '0 8px 32px rgba(0,0,0,0.06)',
+                }}
+                onMouseEnter={() => { if (canZoom) setZooming(true) }}
+                onMouseLeave={() => setZooming(false)}
+                onMouseMove={canZoom ? handleMouseMove : undefined}
+              >
+                {isDark && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.12), transparent 65%)',
+                    pointerEvents: 'none',
+                  }} />
+                )}
 
-              {currentMedia ? (
-                isCurrentVideo ? (
-                  <video
-                    key={currentMedia}
-                    autoPlay loop muted playsInline
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  >
-                    <source src={currentMedia} />
-                  </video>
+                {currentMedia ? (
+                  isCurrentVideo ? (
+                    <video key={currentMedia} autoPlay loop muted playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}>
+                      <source src={currentMedia} />
+                    </video>
+                  ) : (
+                    <img
+                      src={currentMedia}
+                      alt={product.name}
+                      style={{
+                        filter: isDark ? 'drop-shadow(0 12px 24px rgba(139,92,246,0.25))' : 'none',
+                        opacity: zooming ? 0.85 : 1,
+                      }}
+                    />
+                  )
                 ) : (
+                  <span style={{ fontSize: '120px', position: 'relative', zIndex: 1 }}>
+                    {isDark ? '🎮' : product.category === 'tech' ? '⚡' : '🐾'}
+                  </span>
+                )}
+
+                {/* Discount badge */}
+                {discount > 0 && (
+                  <div style={{
+                    position: 'absolute', top: '20px', left: '20px',
+                    background: cat.accent, color: '#fff',
+                    fontFamily: "'DM Mono', monospace", fontSize: '11px',
+                    padding: '5px 12px', borderRadius: '100px', zIndex: 2,
+                    boxShadow: `0 4px 12px ${cat.accent}44`,
+                  }}>-{discount}%</div>
+                )}
+
+                {/* Lens */}
+                {zooming && canZoom && (
+                  <div className="pd-lens" style={{
+                    left: lensPos.x,
+                    top: lensPos.y,
+                  }} />
+                )}
+
+                {/* Zoom hint */}
+                {!zooming && canZoom && (
+                  <div style={{
+                    position: 'absolute', bottom: '16px', right: '16px',
+                    background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)',
+                    borderRadius: '100px', padding: '5px 12px',
+                    fontFamily: "'DM Mono', monospace", fontSize: '9px',
+                    color: 'rgba(255,255,255,0.6)', letterSpacing: '0.08em',
+                    pointerEvents: 'none', zIndex: 3,
+                  }}>
+                    🔍 PASA EL CURSOR PARA ZOOM
+                  </div>
+                )}
+              </div>
+
+              {/* Zoom result panel */}
+              {zooming && canZoom && (
+                <div className="pd-zoom-result" style={{
+                  background: isDark ? '#0a0614' : '#fff',
+                  border: isDark ? '1px solid rgba(139,92,246,0.2)' : '1px solid #E2DED8',
+                }}>
                   <img
                     src={currentMedia}
-                    alt={product.name}
+                    alt="zoom"
                     style={{
-                      filter: isDark ? 'drop-shadow(0 12px 24px rgba(139,92,246,0.25))' : 'none',
+                      left: `-${(zoomPos.x / 100) * (ZOOM - 1) * 440}px`,
+                      top:  `-${(zoomPos.y / 100) * (ZOOM - 1) * 440}px`,
+                      filter: isDark ? 'drop-shadow(0 0 20px rgba(139,92,246,0.2))' : 'none',
                     }}
                   />
-                )
-              ) : (
-                <span style={{ fontSize: '120px', position: 'relative', zIndex: 1 }}>
-                  {isDark ? '🎮' : product.category === 'tech' ? '⚡' : '🐾'}
-                </span>
-              )}
-
-              {/* Discount badge */}
-              {discount > 0 && (
-                <div style={{
-                  position: 'absolute', top: '20px', left: '20px',
-                  background: cat.accent, color: '#fff',
-                  fontFamily: "'DM Mono', monospace", fontSize: '11px',
-                  padding: '5px 12px', borderRadius: '100px', zIndex: 2,
-                  boxShadow: `0 4px 12px ${cat.accent}44`,
-                }}>-{discount}%</div>
+                </div>
               )}
             </div>
 
             {/* Thumbnails */}
             {allMedia.length > 1 && (
-              <div
-                className="pd-thumbs"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: `repeat(${Math.min(allMedia.length, 5)}, 1fr)`,
-                  gap: '8px',
-                }}
-              >
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${Math.min(allMedia.length, 5)}, 1fr)`,
+                gap: '8px',
+              }}>
                 {allMedia.map((src, i) => {
                   const isVid = isVideo(src)
                   return (
                     <div
                       key={i}
                       className={`pd-thumb ${activeMedia === i ? 'active' : ''}`}
-                      onClick={() => setActiveMedia(i)}
+                      onClick={() => { setActiveMedia(i); setZooming(false) }}
                       style={{
                         background: isDark ? '#130a30' : cat.bg,
                         border: `2px solid ${activeMedia === i ? cat.accent : isDark ? 'rgba(139,92,246,0.1)' : '#E2DED8'}`,
@@ -283,18 +353,13 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                     >
                       {isVid ? (
                         <>
-                          <video
-                            src={src} muted
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
+                          <video src={src} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           <div className="pd-play-badge">
                             <Play size={16} color="#fff" fill="#fff" />
                           </div>
                         </>
                       ) : (
-                        <img src={src} alt={`${product.name} ${i + 1}`}
-                          style={{ objectFit: 'contain', padding: '6px' }}
-                        />
+                        <img src={src} alt={`${product.name} ${i + 1}`} style={{ objectFit: 'contain', padding: '6px' }} />
                       )}
                     </div>
                   )
@@ -303,16 +368,14 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
             )}
           </div>
 
-          {/* ── RIGHT: INFO ── */}
+          {/* ── INFO ── */}
           <div>
-
             {/* Category + rating */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 fontFamily: "'DM Mono', monospace", fontSize: '11px',
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-                color: cat.text,
+                letterSpacing: '0.12em', textTransform: 'uppercase', color: cat.text,
               }}>
                 {cat.icon} {cat.label}
               </div>
@@ -350,12 +413,9 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               marginBottom: '28px',
             }}>
               <span style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '72px', lineHeight: 1,
+                fontFamily: "'Bebas Neue', sans-serif", fontSize: '72px', lineHeight: 1,
                 color: isDark ? '#F3F0FF' : '#080808',
-              }}>
-                S/{product.price / 100}
-              </span>
+              }}>S/{product.price / 100}</span>
               {product.compare_price && (
                 <div>
                   <div style={{ fontSize: '16px', color: isDark ? '#4A3A6A' : '#b0aca4', textDecoration: 'line-through', fontFamily: "'DM Sans', sans-serif" }}>
@@ -372,13 +432,12 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
             <ul style={{ listStyle: 'none', marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {benefits.map(b => (
                 <li key={b} className="pd-benefit">
-                  <div
-                    className="pd-benefit-icon"
-                    style={{
-                      background: isDark ? 'rgba(139,92,246,0.15)' : '#dcfce7',
-                      border: isDark ? '1px solid rgba(139,92,246,0.3)' : '1px solid #86efac',
-                    }}
-                  >
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                    background: isDark ? 'rgba(139,92,246,0.15)' : '#dcfce7',
+                    border: isDark ? '1px solid rgba(139,92,246,0.3)' : '1px solid #86efac',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
                     <Check size={10} color={isDark ? '#A78BFA' : '#16a34a'} />
                   </div>
                   <span style={{ color: isDark ? '#C4B5FD' : '#3E3A35', fontFamily: "'DM Sans', sans-serif" }}>{b}</span>
@@ -418,27 +477,16 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   <Plus size={14} />
                 </button>
               </div>
-
               <button
                 className={`pd-add-btn ${added ? 'added' : ''}`}
                 style={{ '--accent': added ? '#16a34a' : cat.accent } as React.CSSProperties}
                 onClick={() => {
-                  addItem({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price / 100,
-                    image: product.images?.[0] ?? '',
-                    quantity: qty,
-                    slug: product.slug,
-                  })
+                  addItem({ id: product.id, name: product.name, price: product.price / 100, image: product.images?.[0] ?? '', quantity: qty, slug: product.slug })
                   setAdded(true)
                   setTimeout(() => setAdded(false), 2000)
                 }}
               >
-                {added
-                  ? <><Check size={16} /> Agregado al carrito</>
-                  : <>Agregar — S/{(product.price / 100) * qty}</>
-                }
+                {added ? <><Check size={16} /> Agregado al carrito</> : <>Agregar — S/{(product.price / 100) * qty}</>}
               </button>
             </div>
 
@@ -456,7 +504,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               </div>
             </div>
 
-            {/* Trust bar */}
+            {/* Trust */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
               {[
                 { icon: <Shield size={14} />, text: 'Pago seguro' },
@@ -481,8 +529,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
 
         {/* ── TABS ── */}
         <div style={{
-          maxWidth: '1300px', margin: '0 auto',
-          padding: '0 48px 80px',
+          maxWidth: '1300px', margin: '0 auto', padding: '0 48px 80px',
           borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.12)' : '#e8e6e1'}`,
         }}>
           <div style={{
@@ -490,16 +537,11 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
             marginBottom: '40px', display: 'flex',
           }}>
             {(['specs', 'reviews', 'faq'] as const).map(tab => (
-              <button
-                key={tab}
-                className="pd-tab"
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  fontFamily: "'DM Mono', monospace",
-                  borderBottom: `2px solid ${activeTab === tab ? cat.accent : 'transparent'}`,
-                  color: activeTab === tab ? (isDark ? '#C4B5FD' : '#080808') : (isDark ? '#6B5B8A' : '#6b6760'),
-                }}
-              >
+              <button key={tab} className="pd-tab" onClick={() => setActiveTab(tab)} style={{
+                fontFamily: "'DM Mono', monospace",
+                borderBottom: `2px solid ${activeTab === tab ? cat.accent : 'transparent'}`,
+                color: activeTab === tab ? (isDark ? '#C4B5FD' : '#080808') : (isDark ? '#6B5B8A' : '#6b6760'),
+              }}>
                 {tab === 'specs' ? 'Especificaciones' : tab === 'reviews' ? 'Opiniones' : 'FAQ'}
               </button>
             ))}
@@ -508,37 +550,25 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           {activeTab === 'specs' && (
             <div style={{ maxWidth: '600px' }}>
               {[
-                { label: 'Categoría',  value: product.category },
-                { label: 'Stock',      value: `${product.stock} unidades` },
-                { label: 'Peso',       value: product.weight_grams ? `${product.weight_grams}g` : 'N/A' },
-                { label: 'Proveedor',  value: product.supplier },
-                { label: 'Garantía',   value: '12 meses' },
+                { label: 'Categoría', value: product.category },
+                { label: 'Stock',     value: `${product.stock} unidades` },
+                { label: 'Peso',      value: product.weight_grams ? `${product.weight_grams}g` : 'N/A' },
+                { label: 'Proveedor', value: product.supplier },
+                { label: 'Garantía',  value: '12 meses' },
               ].map(s => (
                 <div key={s.label} style={{
-                  display: 'grid', gridTemplateColumns: '1fr 1fr',
-                  padding: '16px 0',
+                  display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '16px 0',
                   borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}`,
                 }}>
-                  <span style={{
-                    fontFamily: "'DM Mono', monospace", fontSize: '11px',
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: isDark ? '#6B5B8A' : '#6b6760',
-                  }}>{s.label}</span>
-                  <span style={{
-                    fontWeight: 600,
-                    color: isDark ? '#F3F0FF' : '#080808',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}>{s.value}</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: isDark ? '#6B5B8A' : '#6b6760' }}>{s.label}</span>
+                  <span style={{ fontWeight: 600, color: isDark ? '#F3F0FF' : '#080808', fontFamily: "'DM Sans', sans-serif" }}>{s.value}</span>
                 </div>
               ))}
             </div>
           )}
 
           {activeTab === 'reviews' && (
-            <p style={{
-              color: isDark ? '#6B5B8A' : '#6b6760',
-              fontFamily: "'DM Mono', monospace", fontSize: '12px',
-            }}>
+            <p style={{ color: isDark ? '#6B5B8A' : '#6b6760', fontFamily: "'DM Mono', monospace", fontSize: '12px' }}>
               Aún no hay reseñas. ¡Sé el primero en opinar!
             </p>
           )}
@@ -550,20 +580,9 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 { q: '¿Puedo devolver el producto?', a: '30 días de garantía de devolución sin preguntas.' },
                 { q: '¿Cómo pago con Yape?', a: 'Selecciona Yape en el checkout y te enviamos el QR por WhatsApp.' },
               ].map(f => (
-                <div key={f.q} style={{
-                  padding: '24px 0',
-                  borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}`,
-                }}>
-                  <div style={{
-                    fontSize: '15px', fontWeight: 700, marginBottom: '8px',
-                    color: isDark ? '#F3F0FF' : '#080808',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}>{f.q}</div>
-                  <div style={{
-                    fontSize: '14px', lineHeight: 1.6,
-                    color: isDark ? '#9F7AEA' : '#6b6760',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}>{f.a}</div>
+                <div key={f.q} style={{ padding: '24px 0', borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}` }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: isDark ? '#F3F0FF' : '#080808', fontFamily: "'DM Sans', sans-serif" }}>{f.q}</div>
+                  <div style={{ fontSize: '14px', lineHeight: 1.6, color: isDark ? '#9F7AEA' : '#6b6760', fontFamily: "'DM Sans', sans-serif" }}>{f.a}</div>
                 </div>
               ))}
             </div>
