@@ -106,8 +106,8 @@ export default function FeaturedProduct() {
           border: 1px solid rgba(139,92,246,0.15);
           pointer-events: none;
         }
-        .fp-ring-1 { width: 60%; height: 60%; animation: orbit1 20s linear infinite; }
-        .fp-ring-2 { width: 82%; height: 82%; animation: orbit2 30s linear infinite; }
+        .fp-ring-1 { width: 70%; height: 70%; animation: orbit1 20s linear infinite; }
+        .fp-ring-2 { width: 90%; height: 90%; animation: orbit2 30s linear infinite; }
 
         /* Orbit dots on ring */
         .fp-ring::before {
@@ -120,50 +120,22 @@ export default function FeaturedProduct() {
           border-radius: 50%;
         }
 
-        /* ── ICON BOX ── */
-        @keyframes iconPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.4); }
-          50%       { box-shadow: 0 0 0 20px rgba(139,92,246,0); }
-        }
-        .fp-icon-box {
-          position: relative;
-          width: 180px; height: 180px;
-          background: rgba(139,92,246,0.12);
-          border-radius: 50px;
-          display: flex; align-items: center; justify-content: center;
-          border: 1px solid rgba(139,92,246,0.4);
-          animation: iconPulse 3s ease-in-out infinite;
-          z-index: 2;
-        }
-
-        /* ── STATUS DOT ── */
-        @keyframes statusPing {
-          0%   { transform: scale(1); opacity: 1; }
-          75%  { transform: scale(2.2); opacity: 0; }
-          100% { transform: scale(2.2); opacity: 0; }
-        }
-        .fp-status-ping {
-          position: absolute;
-          inset: 0; border-radius: 50%;
-          background: #22c55e;
-          animation: statusPing 2s cubic-bezier(0,0,0.2,1) infinite;
-        }
-
         /* ── INFO CHIPS ── */
         .fp-chip {
           position: absolute;
-          background: rgba(0,0,0,0.6);
+          background: rgba(0,0,0,0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(139,92,246,0.2);
+          border: 1px solid rgba(139,92,246,0.3);
           border-radius: 16px;
           padding: 12px 18px;
           transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
                       border-color 0.3s ease;
           cursor: default;
+          z-index: 10;
         }
         .fp-chip:hover {
-          border-color: rgba(139,92,246,0.5);
+          border-color: rgba(139,92,246,0.7);
           transform: translateY(-3px);
         }
 
@@ -307,7 +279,7 @@ export default function FeaturedProduct() {
                 <div className="fp-ring fp-ring-1" />
                 <div className="fp-ring fp-ring-2" />
 
-                {/* Center image */}
+                {/* Center image - full size */}
                 <div style={{
                   position: 'absolute', inset: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -317,42 +289,80 @@ export default function FeaturedProduct() {
                     src="/img/REDRAGON KING PRO 4K/REDRAGON KING PRO 4K_img1.jpg"
                     alt="Redragon King Pro 4K"
                     style={{
-                      width: '75%',
-                      height: '75%',
+                      width: '90%',
+                      height: '90%',
                       objectFit: 'contain',
                       filter: 'drop-shadow(0 12px 24px rgba(139,92,246,0.4))',
                     }}
                   />
                 </div>
 
-                {/* Chip: descuento */}
-                <div className="fp-chip" style={{ bottom: '28px', left: '28px' }}>
+                {/* Chip: descuento - más grande y visible */}
+                <div className="fp-chip" style={{ 
+                  bottom: '24px', 
+                  left: '24px',
+                  background: 'linear-gradient(135deg, rgba(34,197,94,0.9), rgba(34,197,94,0.7))',
+                  border: '1px solid rgba(34,197,94,0.5)',
+                  padding: '14px 20px',
+                }}>
                   <div style={{
                     fontFamily: "'DM Mono', monospace",
-                    fontSize: '9px', color: '#C4B5FD',
+                    fontSize: '10px', color: '#fff',
                     letterSpacing: '0.12em', marginBottom: '6px',
                     textTransform: 'uppercase',
                   }}>🔥 OFERTA LIMITADA</div>
                   <div style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: '32px', color: '#22c55e', lineHeight: 1,
+                    fontSize: '42px', color: '#fff', lineHeight: 1,
                   }}>-21%</div>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '4px',
                     marginTop: '4px',
                   }}>
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={8} fill="#F59E0B" color="#F59E0B" />
+                      <Star key={i} size={9} fill="#F59E0B" color="#F59E0B" />
                     ))}
                     <span style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: '9px', color: '#9F7AEA', marginLeft: '2px',
+                      fontSize: '10px', color: '#fff', marginLeft: '2px',
                     }}>4.9</span>
                   </div>
                 </div>
 
+                {/* Chip: 4K Hz */}
+                <div className="fp-chip" style={{ 
+                  top: '24px', 
+                  right: '24px',
+                  background: 'linear-gradient(135deg, rgba(139,92,246,0.9), rgba(139,92,246,0.7))',
+                  border: '1px solid rgba(139,92,246,0.5)',
+                  padding: '12px 18px',
+                }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                  }}>
+                    <Gauge size={14} color="#fff" />
+                    <div>
+                      <div style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: '11px', color: '#fff',
+                        letterSpacing: '0.08em', fontWeight: 'bold',
+                      }}>4K Hz</div>
+                      <div style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: '8px', color: 'rgba(255,255,255,0.7)',
+                      }}>POLLING RATE</div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Chip: stock */}
-                <div className="fp-chip" style={{ top: '28px', left: '28px' }}>
+                <div className="fp-chip" style={{ 
+                  top: '24px', 
+                  left: '24px',
+                  background: 'rgba(0,0,0,0.8)',
+                  border: '1px solid rgba(139,92,246,0.4)',
+                  padding: '8px 14px',
+                }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
                   }}>
@@ -366,20 +376,6 @@ export default function FeaturedProduct() {
                       fontSize: '10px', color: '#C4B5FD',
                       letterSpacing: '0.08em',
                     }}>25 en stock</span>
-                  </div>
-                </div>
-
-                {/* Chip: 4K Hz */}
-                <div className="fp-chip" style={{ top: '28px', right: '28px' }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                  }}>
-                    <Gauge size={12} color="#8B5CF6" />
-                    <span style={{
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: '10px', color: '#8B5CF6',
-                      letterSpacing: '0.08em', fontWeight: 'bold',
-                    }}>4K Hz POLLING</span>
                   </div>
                 </div>
               </div>
