@@ -1,21 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, Check, ArrowRight, ShoppingCart, Star } from 'lucide-react'
+import { Zap, Check, ArrowRight, ShoppingCart, Star, Gamepad2, Mouse, Gauge, Battery, Zap as ZapIcon } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useCartStore } from '@/store/cartStore'
 
-const BENEFITS = [
-  { text: 'Control desde cualquier celular', detail: 'App Tuya Smart o Smart Life' },
-  { text: 'Compatible con Alexa y Google Home', detail: 'Integración por voz en segundos' },
-  { text: 'Programa horarios automáticos', detail: 'Enciende y apaga sin que lo pienses' },
-  { text: 'Monitorea consumo eléctrico', detail: 'Ahorra hasta S/40 al mes' },
+// Product features for Redragon King Pro 4K
+const PRODUCT_FEATURES = [
+  { text: 'Sensor PAW3395 26K DPI', detail: 'Sensor óptico tope de gama para máxima precisión' },
+  { text: 'Polling rate 4K Hz', detail: 'Respuesta ultrarápida de 0.25ms, 4x más rápido que 1000Hz' },
+  { text: 'Conectividad tri-modo', detail: '2.4GHz inalámbrico + Bluetooth 5.0 + USB-C' },
+  { text: 'Batería 120 horas', detail: 'Más de 5 días de uso continuo sin recargar' },
 ]
 
 export default function FeaturedProduct() {
   const [visible, setVisible] = useState(false)
-  const [added, setAdded]     = useState(false)
-  const [hoverBtn, setHoverBtn] = useState(false)
+  const [added, setAdded] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
   const addItem = useCartStore(state => state.addItem)
@@ -32,12 +32,12 @@ export default function FeaturedProduct() {
 
   const handleAdd = () => {
     addItem({
-      id: 'enchufe-wifi-inteligente',
-      name: 'Enchufe WiFi Inteligente',
-      price: 69,
-      image: '',
+      id: 'redragon-king-pro-4k',
+      name: 'Redragon King Pro 4K',
+      price: 219,
+      image: '/img/REDRAGON KING PRO 4K/REDRAGON KING PRO 4K_img1.jpg',
       quantity: 1,
-      slug: 'enchufe-wifi-inteligente',
+      slug: 'redragon-king-pro-4k',
     })
     setAdded(true)
     setTimeout(() => setAdded(false), 2200)
@@ -48,7 +48,7 @@ export default function FeaturedProduct() {
       <style>{`
         /* ── SECTION BG ── */
         .fp-section {
-          background: #080808;
+          background: linear-gradient(135deg, #080610 0%, #0a0614 100%);
           padding: 140px 0;
           position: relative;
           overflow: hidden;
@@ -59,8 +59,8 @@ export default function FeaturedProduct() {
           position: absolute;
           inset: 0;
           background-image:
-            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
           background-size: 64px 64px;
           pointer-events: none;
         }
@@ -86,8 +86,8 @@ export default function FeaturedProduct() {
           aspect-ratio: 1;
           position: relative;
           overflow: hidden;
-          background: linear-gradient(145deg, #0c1929, #0f2240, #0a1628);
-          border: 1px solid rgba(37,99,235,0.15);
+          background: linear-gradient(145deg, #0f0a1a, #130a30, #0c0820);
+          border: 1px solid rgba(139,92,246,0.25);
         }
 
         /* ── ORBIT RINGS ── */
@@ -103,7 +103,7 @@ export default function FeaturedProduct() {
           position: absolute;
           top: 50%; left: 50%;
           border-radius: 50%;
-          border: 1px solid rgba(37,99,235,0.12);
+          border: 1px solid rgba(139,92,246,0.15);
           pointer-events: none;
         }
         .fp-ring-1 { width: 60%; height: 60%; animation: orbit1 20s linear infinite; }
@@ -116,22 +116,22 @@ export default function FeaturedProduct() {
           top: 0; left: 50%;
           transform: translateX(-50%);
           width: 6px; height: 6px;
-          background: rgba(37,99,235,0.5);
+          background: rgba(139,92,246,0.6);
           border-radius: 50%;
         }
 
         /* ── ICON BOX ── */
         @keyframes iconPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
-          50%       { box-shadow: 0 0 0 16px rgba(37,99,235,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.4); }
+          50%       { box-shadow: 0 0 0 20px rgba(139,92,246,0); }
         }
         .fp-icon-box {
           position: relative;
-          width: 160px; height: 160px;
-          background: rgba(37,99,235,0.12);
-          border-radius: 40px;
+          width: 180px; height: 180px;
+          background: rgba(139,92,246,0.12);
+          border-radius: 50px;
           display: flex; align-items: center; justify-content: center;
-          border: 1px solid rgba(37,99,235,0.35);
+          border: 1px solid rgba(139,92,246,0.4);
           animation: iconPulse 3s ease-in-out infinite;
           z-index: 2;
         }
@@ -152,18 +152,18 @@ export default function FeaturedProduct() {
         /* ── INFO CHIPS ── */
         .fp-chip {
           position: absolute;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 16px;
-          padding: 14px 20px;
+          background: rgba(0,0,0,0.6);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(139,92,246,0.2);
+          border-radius: 16px;
+          padding: 12px 18px;
           transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
                       border-color 0.3s ease;
           cursor: default;
         }
         .fp-chip:hover {
-          border-color: rgba(37,99,235,0.3);
+          border-color: rgba(139,92,246,0.5);
           transform: translateY(-3px);
         }
 
@@ -179,11 +179,11 @@ export default function FeaturedProduct() {
           transition: all 0.25s ease;
         }
         .fp-benefit.active {
-          background: rgba(37,99,235,0.08);
-          border-color: rgba(37,99,235,0.2);
+          background: rgba(139,92,246,0.1);
+          border-color: rgba(139,92,246,0.25);
         }
         .fp-benefit:hover:not(.active) {
-          background: rgba(255,255,255,0.03);
+          background: rgba(139,92,246,0.05);
         }
 
         /* ── BUY BUTTON ── */
@@ -193,8 +193,8 @@ export default function FeaturedProduct() {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          background: #FAFAF8;
-          color: #080808;
+          background: #8B5CF6;
+          color: #fff;
           padding: 18px 40px;
           border-radius: 100px;
           font-family: 'DM Sans', sans-serif;
@@ -209,7 +209,7 @@ export default function FeaturedProduct() {
         .fp-buy-btn::before {
           content: '';
           position: absolute; inset: 0;
-          background: #2563EB;
+          background: #A78BFA;
           transform: translateX(-101%);
           transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
           border-radius: inherit;
@@ -217,30 +217,29 @@ export default function FeaturedProduct() {
         .fp-buy-btn:hover::before { transform: translateX(0); }
         .fp-buy-btn:hover {
           transform: scale(1.03);
-          box-shadow: 0 12px 40px rgba(37,99,235,0.4);
+          box-shadow: 0 12px 40px rgba(139,92,246,0.5);
         }
         .fp-buy-btn > * { position: relative; z-index: 1; }
-        .fp-buy-btn:hover > * { color: #fff; }
 
         /* ── ADD CART BTN ── */
         .fp-cart-btn {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: transparent;
-          color: #555;
+          background: rgba(139,92,246,0.1);
+          color: #C4B5FD;
           padding: 17px 28px;
           border-radius: 100px;
           font-family: 'DM Sans', sans-serif;
           font-weight: 600;
           font-size: 14px;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(139,92,246,0.25);
           cursor: pointer;
           transition: all 0.3s ease;
         }
         .fp-cart-btn:hover, .fp-cart-btn.added {
-          background: rgba(34,197,94,0.1);
-          border-color: rgba(34,197,94,0.3);
+          background: rgba(34,197,94,0.15);
+          border-color: rgba(34,197,94,0.4);
           color: #22c55e;
         }
 
@@ -261,17 +260,17 @@ export default function FeaturedProduct() {
         {/* Grid lines BG */}
         <div className="fp-grid-lines" />
 
-        {/* Ambient glows */}
+        {/* Ambient glows - Gaming style */}
         <div style={{
           position: 'absolute', top: '20%', left: '10%',
-          width: '400px', height: '400px',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%)',
+          width: '500px', height: '500px',
+          background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)',
           borderRadius: '50%', pointerEvents: 'none',
         }} />
         <div style={{
           position: 'absolute', bottom: '10%', right: '5%',
-          width: '300px', height: '300px',
-          background: 'radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 70%)',
+          width: '400px', height: '400px',
+          background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
           borderRadius: '50%', pointerEvents: 'none',
         }} />
 
@@ -282,13 +281,13 @@ export default function FeaturedProduct() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 width: '32px', height: '1px',
-                background: 'rgba(37,99,235,0.5)',
+                background: 'rgba(139,92,246,0.6)',
               }} />
               <span style={{
                 fontFamily: "'DM Mono', monospace",
                 fontSize: '11px', letterSpacing: '0.14em',
-                textTransform: 'uppercase', color: '#2563EB',
-              }}>Producto estrella de la semana</span>
+                textTransform: 'uppercase', color: '#A78BFA',
+              }}>🎮 Producto estrella de la semana</span>
             </div>
           </div>
 
@@ -308,40 +307,36 @@ export default function FeaturedProduct() {
                 <div className="fp-ring fp-ring-1" />
                 <div className="fp-ring fp-ring-2" />
 
-                {/* Center icon */}
+                {/* Center image */}
                 <div style={{
                   position: 'absolute', inset: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  zIndex: 2,
                 }}>
-                  <div className="fp-icon-box">
-                    <Zap size={72} color="#2563EB" strokeWidth={1.5} />
-                    {/* Status dot */}
-                    <div style={{
-                      position: 'absolute', top: '-10px', right: '-10px',
-                      width: '22px', height: '22px',
-                    }}>
-                      <div className="fp-status-ping" />
-                      <div style={{
-                        position: 'absolute', inset: '4px',
-                        background: '#22c55e', borderRadius: '50%',
-                        border: '2px solid #080808',
-                      }} />
-                    </div>
-                  </div>
+                  <img 
+                    src="/img/REDRAGON KING PRO 4K/REDRAGON KING PRO 4K_img1.jpg"
+                    alt="Redragon King Pro 4K"
+                    style={{
+                      width: '75%',
+                      height: '75%',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 12px 24px rgba(139,92,246,0.4))',
+                    }}
+                  />
                 </div>
 
-                {/* Chip: ahorro */}
+                {/* Chip: descuento */}
                 <div className="fp-chip" style={{ bottom: '28px', left: '28px' }}>
                   <div style={{
                     fontFamily: "'DM Mono', monospace",
-                    fontSize: '9px', color: '#444',
+                    fontSize: '9px', color: '#C4B5FD',
                     letterSpacing: '0.12em', marginBottom: '6px',
                     textTransform: 'uppercase',
-                  }}>Ahorro mensual</div>
+                  }}>🔥 OFERTA LIMITADA</div>
                   <div style={{
                     fontFamily: "'Bebas Neue', sans-serif",
                     fontSize: '32px', color: '#22c55e', lineHeight: 1,
-                  }}>S/ 40</div>
+                  }}>-21%</div>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '4px',
                     marginTop: '4px',
@@ -351,7 +346,7 @@ export default function FeaturedProduct() {
                     ))}
                     <span style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: '9px', color: '#555', marginLeft: '2px',
+                      fontSize: '9px', color: '#9F7AEA', marginLeft: '2px',
                     }}>4.9</span>
                   </div>
                 </div>
@@ -368,9 +363,23 @@ export default function FeaturedProduct() {
                     }} />
                     <span style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: '10px', color: '#888',
+                      fontSize: '10px', color: '#C4B5FD',
                       letterSpacing: '0.08em',
-                    }}>50 en stock</span>
+                    }}>25 en stock</span>
+                  </div>
+                </div>
+
+                {/* Chip: 4K Hz */}
+                <div className="fp-chip" style={{ top: '28px', right: '28px' }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                  }}>
+                    <Gauge size={12} color="#8B5CF6" />
+                    <span style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: '10px', color: '#8B5CF6',
+                      letterSpacing: '0.08em', fontWeight: 'bold',
+                    }}>4K Hz POLLING</span>
                   </div>
                 </div>
               </div>
@@ -382,20 +391,32 @@ export default function FeaturedProduct() {
               <div className={`fp-reveal fp-d3 ${visible ? 'fp-in' : ''}`} style={{
                 display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', marginBottom: '20px',
+                flexWrap: 'wrap', gap: '8px',
               }}>
-                <span style={{
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: '11px', letterSpacing: '0.12em',
-                  textTransform: 'uppercase', color: '#444',
-                }}>Tech · Smart Home</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '11px', letterSpacing: '0.12em',
+                    textTransform: 'uppercase', color: '#A78BFA',
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                  }}>
+                    <Gamepad2 size={12} /> Gaming · Mice
+                  </span>
+                  <span style={{ color: '#4A3A6A' }}>•</span>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '10px',
+                    color: '#8B5CF6',
+                  }}>#1 Más vendido</span>
+                </div>
                 <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={12} fill="#F59E0B" color="#F59E0B" />
                   ))}
                   <span style={{
                     fontFamily: "'DM Mono', monospace",
-                    fontSize: '10px', color: '#666', marginLeft: '6px',
-                  }}>4.9 (24 reseñas)</span>
+                    fontSize: '10px', color: '#9F7AEA', marginLeft: '6px',
+                  }}>4.9 (156 reseñas)</span>
                 </div>
               </div>
 
@@ -405,53 +426,67 @@ export default function FeaturedProduct() {
                   fontFamily: "'Bebas Neue', sans-serif",
                   fontSize: 'clamp(52px, 6vw, 84px)',
                   lineHeight: 0.88,
-                  color: '#FAFAF8',
-                  marginBottom: '32px',
+                  color: '#F3F0FF',
+                  marginBottom: '24px',
                   letterSpacing: '-0.01em',
                 }}>
-                  ENCHUFE<br />
-                  <span style={{ color: '#2563EB' }}>WiFi</span><br />
-                  INTELIGENTE
+                  REDRAGON<br />
+                  <span style={{ color: '#8B5CF6' }}>KING PRO</span><br />
+                  4K
                 </div>
               </div>
 
-              {/* Benefits — interactive tabs */}
+              {/* Description */}
+              <div className={`fp-reveal fp-d3 ${visible ? 'fp-in' : ''}`}>
+                <p style={{
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#C4B5FD',
+                  marginBottom: '28px',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  Mouse gaming inalámbrico con sensor PAW3395 26K DPI, polling rate 4K Hz y conectividad tri-modo. 
+                  Batería de 120 horas para sesiones interminables.
+                </p>
+              </div>
+
+              {/* Features — interactive tabs */}
               <div
                 className={`fp-reveal fp-d4 ${visible ? 'fp-in' : ''}`}
                 style={{ marginBottom: '36px', display: 'flex', flexDirection: 'column', gap: '6px' }}
               >
-                {BENEFITS.map((b, i) => (
+                {PRODUCT_FEATURES.map((feature, i) => (
                   <div
-                    key={b.text}
+                    key={feature.text}
                     className={`fp-benefit ${activeTab === i ? 'active' : ''}`}
                     onClick={() => setActiveTab(i)}
                   >
                     <div style={{
                       width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0,
-                      background: activeTab === i ? 'rgba(37,99,235,0.25)' : 'rgba(37,99,235,0.10)',
-                      border: `1px solid ${activeTab === i ? 'rgba(37,99,235,0.5)' : 'rgba(37,99,235,0.2)'}`,
+                      background: activeTab === i ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.1)',
+                      border: `1px solid ${activeTab === i ? 'rgba(139,92,246,0.5)' : 'rgba(139,92,246,0.2)'}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       transition: 'all 0.25s ease',
                       marginTop: '1px',
                     }}>
-                      <Check size={11} color={activeTab === i ? '#60A5FA' : '#2563EB'} />
+                      <Check size={11} color={activeTab === i ? '#C4B5FD' : '#8B5CF6'} />
                     </div>
                     <div>
                       <p style={{
                         fontSize: '14px',
-                        color: activeTab === i ? '#E2E8F0' : '#888',
+                        color: activeTab === i ? '#F3F0FF' : '#9F7AEA',
                         fontFamily: "'DM Sans', sans-serif",
                         fontWeight: activeTab === i ? 500 : 400,
                         lineHeight: 1.4,
                         transition: 'color 0.25s ease',
-                      }}>{b.text}</p>
+                      }}>{feature.text}</p>
                       {activeTab === i && (
                         <p style={{
-                          fontSize: '12px', color: '#60A5FA',
+                          fontSize: '12px', color: '#A78BFA',
                           fontFamily: "'DM Mono', monospace",
                           marginTop: '3px', letterSpacing: '0.04em',
                           animation: 'priceIn 0.3s cubic-bezier(0.16,1,0.3,1) both',
-                        }}>{b.detail}</p>
+                        }}>{feature.detail}</p>
                       )}
                     </div>
                   </div>
@@ -465,28 +500,28 @@ export default function FeaturedProduct() {
                   display: 'flex', alignItems: 'baseline',
                   gap: '16px', marginBottom: '36px',
                   paddingBottom: '36px',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  borderBottom: '1px solid rgba(139,92,246,0.15)',
                 }}
               >
                 <span className="fp-price-anim" style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '80px', color: '#FAFAF8', lineHeight: 1,
-                }}>S/69</span>
+                  fontSize: '80px', color: '#F3F0FF', lineHeight: 1,
+                }}>S/219</span>
                 <div>
                   <div style={{
-                    fontSize: '18px', color: '#333',
+                    fontSize: '18px', color: '#6B5B8A',
                     textDecoration: 'line-through', fontFamily: "'DM Sans', sans-serif",
-                  }}>S/99</div>
+                  }}>S/279</div>
                   <div style={{
                     display: 'inline-flex', alignItems: 'center',
-                    background: 'rgba(37,99,235,0.15)',
-                    border: '1px solid rgba(37,99,235,0.25)',
+                    background: 'rgba(34,197,94,0.15)',
+                    border: '1px solid rgba(34,197,94,0.3)',
                     borderRadius: '100px',
                     padding: '3px 10px',
                     fontFamily: "'DM Mono', monospace",
                     fontSize: '10px', letterSpacing: '0.08em',
-                    color: '#60A5FA', marginTop: '4px',
-                  }}>AHORRAS S/30</div>
+                    color: '#22c55e', marginTop: '4px',
+                  }}>AHORRAS S/60</div>
                 </div>
               </div>
 
@@ -494,9 +529,9 @@ export default function FeaturedProduct() {
               <div className={`fp-reveal fp-d6 ${visible ? 'fp-in' : ''}`} style={{
                 display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center',
               }}>
-                <Link href="/productos/enchufe-wifi-inteligente" className="fp-buy-btn">
+                <Link href="/productos/redragon-king-pro-4k" className="fp-buy-btn">
                   <span>Comprar ahora</span>
-                  <ArrowRight size={16} style={{ transition: 'color 0.3s' }} />
+                  <ArrowRight size={16} />
                 </Link>
 
                 <button
@@ -521,11 +556,11 @@ export default function FeaturedProduct() {
               <div className={`fp-reveal fp-d6 ${visible ? 'fp-in' : ''}`} style={{
                 display: 'flex', gap: '20px', marginTop: '24px', flexWrap: 'wrap',
               }}>
-                {['🔒 Pago seguro', '📦 Envío en 2-3 días', '↩ 30 días devolución'].map(t => (
+                {['🔒 Pago seguro', '📦 Envío a todo Perú', '↩ 30 días devolución', '🎮 Garantía 12 meses'].map(t => (
                   <span key={t} style={{
                     fontFamily: "'DM Mono', monospace",
                     fontSize: '10px', letterSpacing: '0.06em',
-                    color: '#444', textTransform: 'uppercase',
+                    color: '#6B5B8A', textTransform: 'uppercase',
                   }}>{t}</span>
                 ))}
               </div>
