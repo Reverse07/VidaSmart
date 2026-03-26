@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight, Gamepad2 } from 'lucide-react'
+import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight, Gamepad2, Mouse, Keyboard, Headset, Monitor, Sofa, SquareMousePointer } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
@@ -32,6 +32,16 @@ export default function Navbar() {
     dropdownTimer.current = setTimeout(() => setActiveDropdown(null), 120)
   }
 
+  // Gaming subcategories for dropdown
+  const gamingSubcategories = [
+    { label: 'Mice', href: '/productos?cat=gaming&subcat=mice', icon: <Mouse size={12} />, color: '#8B5CF6' },
+    { label: 'Teclados', href: '/productos?cat=gaming&subcat=teclados', icon: <Keyboard size={12} />, color: '#A78BFA' },
+    { label: 'Headsets', href: '/productos?cat=gaming&subcat=headsets', icon: <Headset size={12} />, color: '#C084FC' },
+    { label: 'Mousepads', href: '/productos?cat=gaming&subcat=mousepads', icon: <SquareMousePointer size={12} />, color: '#D946EF' },
+    { label: 'Sillas', href: '/productos?cat=gaming&subcat=sillas', icon: <Sofa size={12} />, color: '#EC489A' },
+    { label: 'Monitores', href: '/productos?cat=gaming&subcat=monitores', icon: <Monitor size={12} />, color: '#F43F5E' },
+  ]
+
   const categories = [
     {
       key: 'gaming',
@@ -41,7 +51,7 @@ export default function Navbar() {
       color: '#1a0f2e',
       textColor: '#A78BFA',
       accent: '#8B5CF6',
-      items: ['Mice Razer', 'Logitech G', 'Attack Shark', 'VGN · Lamzu'],
+      items: gamingSubcategories,
     },
     {
       key: 'tech',
@@ -206,6 +216,11 @@ export default function Navbar() {
           font-family: 'DM Sans', sans-serif;
         }
         .mobile-link:hover { background: #F7F6F4; }
+        .mobile-subcategory {
+          padding-left: 48px;
+          font-size: 14px;
+          color: #7C3AED;
+        }
 
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
@@ -345,38 +360,79 @@ export default function Navbar() {
                       }}>{cat.label.toUpperCase()}</span>
                     </div>
 
-                    {cat.items.map(item => (
-                      <Link key={item} href={cat.href}
-                        className={`dropdown-item ${cat.key === 'gaming' ? 'dropdown-item-dark' : 'dropdown-item-light'}`}
-                      >
-                        <span style={{
-                          width: '6px', height: '6px', borderRadius: '50%',
-                          background: cat.accent, flexShrink: 0,
-                        }} />
-                        {item}
-                      </Link>
-                    ))}
-
-                    <div style={{
-                      marginTop: '12px', paddingTop: '12px',
-                      borderTop: `1px solid ${cat.key === 'gaming' ? 'rgba(139,92,246,0.15)' : '#E2DED8'}`,
-                    }}>
-                      <Link href={cat.href} style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '9px 12px', borderRadius: '10px',
-                        fontSize: '12px', fontWeight: 600,
-                        color: cat.accent, textDecoration: 'none',
-                        fontFamily: "'DM Mono', monospace",
-                        letterSpacing: '0.05em', textTransform: 'uppercase',
-                        transition: 'background 0.15s',
-                      }}
-                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
-                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
-                      >
-                        Ver toda la colección
-                        <ChevronRight size={12} />
-                      </Link>
-                    </div>
+                    {/* Items - handle differently for gaming with icons */}
+                    {cat.key === 'gaming' ? (
+                      <>
+                        {cat.items.map((item: any) => (
+                          <Link key={item.label} href={item.href}
+                            className={`dropdown-item ${cat.key === 'gaming' ? 'dropdown-item-dark' : 'dropdown-item-light'}`}
+                          >
+                            <span style={{
+                              width: '6px', height: '6px', borderRadius: '50%',
+                              background: item.color, flexShrink: 0,
+                            }} />
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {item.icon}
+                              {item.label}
+                            </span>
+                          </Link>
+                        ))}
+                        <div style={{
+                          marginTop: '12px', paddingTop: '12px',
+                          borderTop: `1px solid ${cat.key === 'gaming' ? 'rgba(139,92,246,0.15)' : '#E2DED8'}`,
+                        }}>
+                          <Link href={cat.href} style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '9px 12px', borderRadius: '10px',
+                            fontSize: '12px', fontWeight: 600,
+                            color: cat.accent, textDecoration: 'none',
+                            fontFamily: "'DM Mono', monospace",
+                            letterSpacing: '0.05em', textTransform: 'uppercase',
+                            transition: 'background 0.15s',
+                          }}
+                            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
+                            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+                          >
+                            Ver toda la colección
+                            <ChevronRight size={12} />
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {(cat.items as string[]).map(item => (
+                          <Link key={item} href={cat.href}
+                            className={`dropdown-item ${cat.key === 'gaming' ? 'dropdown-item-dark' : 'dropdown-item-light'}`}
+                          >
+                            <span style={{
+                              width: '6px', height: '6px', borderRadius: '50%',
+                              background: cat.accent, flexShrink: 0,
+                            }} />
+                            {item}
+                          </Link>
+                        ))}
+                        <div style={{
+                          marginTop: '12px', paddingTop: '12px',
+                          borderTop: `1px solid ${cat.key === 'gaming' ? 'rgba(139,92,246,0.15)' : '#E2DED8'}`,
+                        }}>
+                          <Link href={cat.href} style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '9px 12px', borderRadius: '10px',
+                            fontSize: '12px', fontWeight: 600,
+                            color: cat.accent, textDecoration: 'none',
+                            fontFamily: "'DM Mono', monospace",
+                            letterSpacing: '0.05em', textTransform: 'uppercase',
+                            transition: 'background 0.15s',
+                          }}
+                            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
+                            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+                          >
+                            Ver toda la colección
+                            <ChevronRight size={12} />
+                          </Link>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -487,22 +543,42 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
+        {/* MOBILE MENU - Updated with gaming subcategories */}
         {menuOpen && (
           <div className="mobile-menu">
             <Link href="/productos" className="mobile-link">
               Todos los productos
               <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
             </Link>
-            <Link href="/productos?cat=gaming" className="mobile-link" style={{ color: '#7C3AED' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '28px', height: '28px', background: '#1a0f2e', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Gamepad2 size={13} color="#A78BFA" />
+            
+            {/* Gaming with subcategories */}
+            <div>
+              <Link href="/productos?cat=gaming" className="mobile-link" style={{ color: '#7C3AED' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '28px', height: '28px', background: '#1a0f2e', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Gamepad2 size={13} color="#A78BFA" />
+                  </span>
+                  PC Gaming
                 </span>
-                PC Gaming
-              </span>
-              <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
-            </Link>
+                <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
+              </Link>
+              <div style={{ marginLeft: '48px', marginTop: '4px', marginBottom: '4px' }}>
+                {gamingSubcategories.map(sub => (
+                  <Link key={sub.label} href={sub.href} className="mobile-link mobile-subcategory" style={{ 
+                    padding: '10px 16px', 
+                    fontSize: '13px',
+                    color: sub.color,
+                  }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {sub.icon}
+                      {sub.label}
+                    </span>
+                    <ChevronRight size={12} style={{ color: '#C8C3BB' }} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+            
             <Link href="/productos?cat=tech" className="mobile-link">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ width: '28px', height: '28px', background: '#EFF6FF', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
