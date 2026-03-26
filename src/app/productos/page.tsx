@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { Zap, PawPrint, Gamepad2, Plus, Check, Mouse } from 'lucide-react'
+import { Zap, PawPrint, Gamepad2, Plus, Check, Mouse, Keyboard, Headset, Monitor, Sofa, SquareMousePointer } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useCartStore } from '@/store/cartStore'
@@ -14,6 +14,7 @@ interface Product {
   price: number
   compare_price: number
   category: string
+  subcategory?: string
   description: string
   is_active: boolean
   images?: string[]
@@ -24,6 +25,17 @@ const CAT_STYLE: Record<string, { bg: string; icon: React.ReactElement; accent: 
   tech:     { bg: '#EFF6FF', icon: <Zap size={36} color="#2563EB" />,      accent: '#2563EB', dark: false },
   mascotas: { bg: '#FFF7ED', icon: <PawPrint size={36} color="#D97706" />, accent: '#D97706', dark: false },
 }
+
+// Subcategory filters for gaming
+const GAMING_SUBCATEGORIES = [
+  { label: 'Todo Gaming', value: null, icon: <Gamepad2 size={12} />, accent: '#8B5CF6' },
+  { label: 'Mice', value: 'mice', icon: <Mouse size={12} />, accent: '#8B5CF6' },
+  { label: 'Teclados', value: 'teclados', icon: <Keyboard size={12} />, accent: '#A78BFA' },
+  { label: 'Headsets', value: 'headsets', icon: <Headset size={12} />, accent: '#C084FC' },
+  { label: 'Mousepads', value: 'mousepads', icon: <SquareMousePointer size={12} />, accent: '#D946EF' },
+  { label: 'Sillas', value: 'sillas', icon: <Sofa size={12} />, accent: '#EC489A' },
+  { label: 'Monitores', value: 'monitores', icon: <Monitor size={12} />, accent: '#F43F5E' },
+]
 
 const FILTERS = [
   { label: 'Todo',       value: null,       accent: '#080808' },
@@ -37,6 +49,9 @@ function ProductCard({ p }: { p: Product }) {
   const addItem = useCartStore(state => state.addItem)
   const style = CAT_STYLE[p.category] ?? CAT_STYLE.tech
   const discount = p.compare_price ? Math.round((1 - p.price / p.compare_price) * 100) : 0
+
+  // Get subcategory label if exists
+  const subcatInfo = p.subcategory && GAMING_SUBCATEGORIES.find(sc => sc.value === p.subcategory)
 
   return (
     <Link href={`/productos/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
@@ -95,18 +110,18 @@ function ProductCard({ p }: { p: Product }) {
               padding: '4px 8px', borderRadius: '100px', zIndex: 2,
             }}>-{discount}%</div>
           )}
-          {style.dark && (
+          {style.dark && subcatInfo && (
             <div style={{
               position: 'absolute', bottom: '14px', left: '14px',
-              background: 'rgba(139,92,246,0.15)',
-              border: '1px solid rgba(139,92,246,0.25)',
+              background: `${subcatInfo.accent}20`,
+              border: `1px solid ${subcatInfo.accent}40`,
               borderRadius: '100px', padding: '3px 10px',
               fontFamily: "'DM Mono', monospace", fontSize: '9px',
-              color: '#C4B5FD', letterSpacing: '0.08em',
+              color: subcatInfo.accent, letterSpacing: '0.08em',
               backdropFilter: 'blur(8px)', zIndex: 2,
               display: 'flex', alignItems: 'center', gap: '4px',
             }}>
-              <Mouse size={9} color="#A78BFA" /> PERIFÉRICO
+              {subcatInfo.icon} {subcatInfo.label}
             </div>
           )}
         </div>
@@ -117,7 +132,11 @@ function ProductCard({ p }: { p: Product }) {
             fontFamily: "'DM Mono', monospace", fontSize: '10px',
             letterSpacing: '0.1em', textTransform: 'uppercase',
             color: style.dark ? '#7C3AED' : '#A09890', marginBottom: '6px',
-          }}>{p.category}</p>
+          }}>
+            {p.category === 'gaming' && p.subcategory 
+              ? `${p.category} / ${GAMING_SUBCATEGORIES.find(sc => sc.value === p.subcategory)?.label || p.subcategory}`
+              : p.category}
+          </p>
           <h3 style={{
             fontSize: '15px', fontWeight: 600, lineHeight: 1.3,
             color: style.dark ? '#F3F0FF' : '#080808',
@@ -204,6 +223,7 @@ function SkeletonCard({ dark = false }: { dark?: boolean }) {
 function Catalogo() {
   const searchParams = useSearchParams()
   const cat = searchParams.get('cat')
+  const subcat = searchParams.get('subcat')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -211,15 +231,27 @@ function Catalogo() {
     setLoading(true)
     async function load() {
       let q = supabase.from('products').select('*').eq('is_active', true).order('created_at', { ascending: false })
-      if (cat === 'tech' || cat === 'mascotas' || cat === 'gaming') q = q.eq('category', cat)
+      
+      // Filter by main category
+      if (cat === 'tech' || cat === 'mascotas' || cat === 'gaming') {
+        q = q.eq('category', cat)
+      }
+      
+      // If gaming and subcategory is specified, filter by subcategory
+      if (cat === 'gaming' && subcat && subcat !== 'all') {
+        q = q.eq('subcategory', subcat)
+      }
+      
       const { data } = await q
       setProducts(data ?? [])
       setLoading(false)
     }
     load()
-  }, [cat])
+  }, [cat, subcat])
 
   const isDark = cat === 'gaming'
+  const currentSubcat = subcat === 'all' ? null : subcat
+  const activeSubcat = GAMING_SUBCATEGORIES.find(sc => sc.value === currentSubcat) || GAMING_SUBCATEGORIES[0]
 
   const TITLE: Record<string, string> = {
     gaming:   'PC GAMING\nPERIFÉRICOS',
@@ -270,8 +302,8 @@ function Catalogo() {
           {cat ? TITLE[cat] : 'TODOS LOS\nPRODUCTOS'}
         </div>
 
-        {/* Filters */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {/* Main Category Filters */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: cat === 'gaming' ? '20px' : '0' }}>
           {FILTERS.map(f => {
             const active = cat === f.value
             return (
@@ -288,6 +320,39 @@ function Catalogo() {
             )
           })}
         </div>
+
+        {/* Gaming Subcategory Filters - Only show when gaming category is selected */}
+        {cat === 'gaming' && (
+          <div style={{
+            display: 'flex', gap: '8px', flexWrap: 'wrap',
+            paddingTop: '16px',
+            borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.1)' : '#E2DED8'}`,
+            marginTop: '8px',
+          }}>
+            {GAMING_SUBCATEGORIES.map(sub => {
+              const isActive = (sub.value === null && !subcat) || (sub.value !== null && subcat === sub.value)
+              return (
+                <Link
+                  key={sub.label}
+                  href={sub.value ? `/productos?cat=gaming&subcat=${sub.value}` : '/productos?cat=gaming'}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                    fontFamily: "'DM Mono', monospace", fontSize: '10px',
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                    padding: '7px 14px', borderRadius: '100px', textDecoration: 'none',
+                    border: `1.5px solid ${isActive ? sub.accent : isDark ? 'rgba(139,92,246,0.2)' : '#E2DED8'}`,
+                    background: isActive ? `${sub.accent}20` : 'transparent',
+                    color: isActive ? sub.accent : isDark ? '#9F7AEA' : '#A09890',
+                    transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                >
+                  {sub.icon}
+                  {sub.label}
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* GRID */}
@@ -297,6 +362,19 @@ function Catalogo() {
           : products.map(p => <ProductCard key={p.slug} p={p} />)
         }
       </div>
+
+      {/* Empty state */}
+      {!loading && products.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '80px 48px',
+          color: isDark ? '#6B5B8A' : '#A09890',
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '12px',
+        }}>
+          No hay productos en esta categoría.
+        </div>
+      )}
     </div>
   )
 }
