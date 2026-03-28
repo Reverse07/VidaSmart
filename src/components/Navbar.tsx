@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { ShoppingCart, Menu, X, Zap, PawPrint, ChevronRight, Gamepad2, Mouse, Keyboard, Headset, Monitor, Sofa, SquareMousePointer } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useState, useEffect, useRef } from 'react'
@@ -32,7 +33,6 @@ export default function Navbar() {
     dropdownTimer.current = setTimeout(() => setActiveDropdown(null), 120)
   }
 
-  // Gaming subcategories for dropdown
   const gamingSubcategories = [
     { label: 'Mice', href: '/productos?cat=gaming&subcat=mice', icon: <Mouse size={12} />, color: '#8B5CF6' },
     { label: 'Teclados', href: '/productos?cat=gaming&subcat=teclados', icon: <Keyboard size={12} />, color: '#A78BFA' },
@@ -225,45 +225,193 @@ export default function Navbar() {
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-toggle { display: flex !important; }
+          .announce-payment-icons { display: none !important; }
         }
         @media (min-width: 769px) {
           .mobile-toggle { display: none !important; }
         }
       `}</style>
 
-      {/* ANNOUNCEMENT BAR */}
+      {/* ANNOUNCEMENT BAR - CON LOGOS REALES */}
       <div style={{
         background: '#080808', color: '#fff',
-        height: '36px', display: 'flex', alignItems: 'center',
+        height: '40px', display: 'flex', alignItems: 'center',
         justifyContent: 'center', overflow: 'hidden', position: 'relative',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{
-          display: 'flex', alignItems: 'center', gap: '48px',
-          animation: 'marqueeAnnounce 32s linear infinite',
+          display: 'flex', alignItems: 'center', gap: '32px',
+          animation: 'marqueeAnnounce 28s linear infinite',
           whiteSpace: 'nowrap',
+          padding: '0 24px',
         }}>
-          {[
-            '🎮 Mice gaming desde S/69',
-            '✦', '⚡ Smart Home',
-            '✦', '🐾 Para tu mascota',
-            '✦', '📦 Envíos a todo Perú',
-            '✦', '💳 Pago con Yape',
-            '✦', '↩ Garantía 30 días',
-            '✦', '🎮 Mice gaming desde S/69',
-            '✦', '⚡ Smart Home',
-            '✦', '🐾 Para tu mascota',
-            '✦', '📦 Envíos a todo Perú',
-            '✦', '💳 Pago con Yape',
-            '✦', '↩ Garantía 30 días',
-            '✦',
-          ].map((text, i) => (
-            <span key={i} style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: '11px', letterSpacing: '0.08em',
-              color: text === '✦' ? '#333' : i % 4 === 0 ? '#A78BFA' : '#888',
-            }}>{text}</span>
-          ))}
+          {/* Primera tanda */}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/yapeLogo.png" 
+                alt="Yape" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              Yape / Plin
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/mercadoPagoLogo.png" 
+                alt="Mercado Pago" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              Mercado Pago
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/whatsappLogo.jpg" 
+                alt="WhatsApp" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain', borderRadius: '2px' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              +51 999 999 999
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            📦 Envíos a todo Perú
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            🎮 Gaming gear
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            ⚡ Smart Home
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            🐾 Pet care
+          </span>
+
+          {/* Segunda tanda (para marquee) */}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/yapeLogo.png" 
+                alt="Yape" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              Yape / Plin
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/mercadoPagoLogo.png" 
+                alt="Mercado Pago" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              Mercado Pago
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '20px', height: '20px', position: 'relative', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Image 
+                src="/img/whatsappLogo.jpg" 
+                alt="WhatsApp" 
+                width={18} 
+                height={18}
+                style={{ objectFit: 'contain', borderRadius: '2px' }}
+              />
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+              +51 999 999 999
+            </span>
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            📦 Envíos a todo Perú
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            🎮 Gaming gear
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            ⚡ Smart Home
+          </span>
+          
+          <span style={{ color: '#333', fontSize: '12px' }}>✦</span>
+          
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
+            🐾 Pet care
+          </span>
         </div>
+        
         <style>{`
           @keyframes marqueeAnnounce {
             from { transform: translateX(0); }
@@ -275,36 +423,35 @@ export default function Navbar() {
       {/* MAIN NAV */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: scrolled ? 'rgba(250,250,248,0.97)' : 'rgba(250,250,248,0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: scrolled ? 'rgba(250,250,248,0.96)' : 'rgba(250,250,248,0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         borderBottom: `1px solid ${scrolled ? '#E2DED8' : 'transparent'}`,
         transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)',
-        boxShadow: scrolled ? '0 1px 0 rgba(0,0,0,0.04)' : 'none',
       }}>
         <div style={{
           maxWidth: '1400px', margin: '0 auto', padding: '0 48px',
-          height: '60px', display: 'flex', alignItems: 'center',
+          height: '68px', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', gap: '24px',
         }}>
 
           {/* LOGO */}
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '24px', letterSpacing: '0.03em', color: '#080808', lineHeight: 1 }}>VIDA</span>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '24px', letterSpacing: '0.03em', color: '#2563EB', lineHeight: 1 }}>SMART</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '26px', letterSpacing: '-0.01em', color: '#080808', lineHeight: 1 }}>VIDA</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '26px', letterSpacing: '-0.01em', color: '#2563EB', lineHeight: 1 }}>SMART</span>
               <div style={{
                 marginLeft: '8px', background: '#EFF6FF', border: '1px solid #DBEAFE',
-                borderRadius: '4px', padding: '2px 6px',
+                borderRadius: '6px', padding: '2px 8px',
                 fontFamily: "'DM Mono', monospace", fontSize: '9px',
-                letterSpacing: '0.08em', color: '#2563EB', fontWeight: 500,
+                letterSpacing: '0.06em', color: '#2563EB', fontWeight: 500,
               }}>PERÚ</div>
             </div>
           </Link>
 
           {/* NAV LINKS */}
           <div className="desktop-nav" style={{
-            display: 'flex', alignItems: 'center', gap: '2px', flex: 1, justifyContent: 'center',
+            display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center',
           }}>
             <Link href="/productos" className={`nav-link ${pathname === '/productos' ? 'active' : ''}`}>
               Todos
@@ -319,7 +466,7 @@ export default function Navbar() {
                   href={cat.href}
                   className={`nav-link ${cat.key === 'gaming' ? 'nav-link-gaming' : ''} ${pathname?.includes(`cat=${cat.key}`) ? 'active' : ''}`}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: '4px',
+                    display: 'flex', alignItems: 'center', gap: '6px',
                     color: cat.key === 'gaming' && activeDropdown === 'gaming' ? '#8B5CF6' : undefined,
                   }}
                 >
@@ -334,7 +481,7 @@ export default function Navbar() {
                     transform: activeDropdown === cat.key ? 'rotate(90deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease', opacity: 0.5,
                   }}>
-                    <ChevronRight size={12} />
+                    <ChevronRight size={11} />
                   </span>
                 </Link>
 
@@ -344,23 +491,21 @@ export default function Navbar() {
                     onMouseEnter={() => openDropdown(cat.key)}
                     onMouseLeave={closeDropdown}
                   >
-                    {/* Header */}
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: '10px',
                       padding: '10px 12px',
-                      background: cat.key === 'gaming' ? 'rgba(139,92,246,0.12)' : cat.color,
+                      background: cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : cat.color,
                       border: cat.key === 'gaming' ? '1px solid rgba(139,92,246,0.2)' : 'none',
-                      borderRadius: '12px', marginBottom: '12px',
+                      borderRadius: '14px', marginBottom: '12px',
                     }}>
                       <span style={{ color: cat.textColor }}>{cat.icon}</span>
                       <span style={{
                         fontFamily: "'Bebas Neue', sans-serif", fontSize: '18px',
-                        letterSpacing: '0.03em',
+                        letterSpacing: '0.02em',
                         color: cat.key === 'gaming' ? '#C4B5FD' : '#080808',
                       }}>{cat.label.toUpperCase()}</span>
                     </div>
 
-                    {/* Items - handle differently for gaming with icons */}
                     {cat.key === 'gaming' ? (
                       <>
                         {cat.items.map((item: any) => (
@@ -389,10 +534,7 @@ export default function Navbar() {
                             fontFamily: "'DM Mono', monospace",
                             letterSpacing: '0.05em', textTransform: 'uppercase',
                             transition: 'background 0.15s',
-                          }}
-                            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
-                            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
-                          >
+                          }}>
                             Ver toda la colección
                             <ChevronRight size={12} />
                           </Link>
@@ -423,10 +565,7 @@ export default function Navbar() {
                             fontFamily: "'DM Mono', monospace",
                             letterSpacing: '0.05em', textTransform: 'uppercase',
                             transition: 'background 0.15s',
-                          }}
-                            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = cat.key === 'gaming' ? 'rgba(139,92,246,0.1)' : '#F7F6F4'}
-                            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
-                          >
+                          }}>
                             Ver toda la colección
                             <ChevronRight size={12} />
                           </Link>
@@ -440,7 +579,7 @@ export default function Navbar() {
           </div>
 
           {/* ACTIONS */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
 
             {/* CART */}
             <div style={{ position: 'relative' }}
@@ -448,7 +587,7 @@ export default function Navbar() {
               onMouseLeave={() => setCartPreview(false)}
             >
               <Link href="/carrito" className="cart-btn">
-                <ShoppingCart size={19} strokeWidth={1.8} />
+                <ShoppingCart size={19} strokeWidth={1.7} />
                 {itemCount() > 0 && (
                   <div className="badge" key={itemCount()}>
                     {itemCount() > 9 ? '9+' : itemCount()}
@@ -469,7 +608,7 @@ export default function Navbar() {
                       <div key={item.id} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <div style={{
                           width: '40px', height: '40px', background: '#F7F6F4',
-                          borderRadius: '8px', display: 'flex', alignItems: 'center',
+                          borderRadius: '10px', display: 'flex', alignItems: 'center',
                           justifyContent: 'center', fontSize: '18px', flexShrink: 0,
                         }}>
                           {getCartIcon(item.slug)}
@@ -496,12 +635,9 @@ export default function Navbar() {
                     display: 'block', textAlign: 'center',
                     background: '#080808', color: '#fff',
                     padding: '12px', borderRadius: '100px',
-                    textDecoration: 'none', fontSize: '13px', fontWeight: 700,
-                    fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s',
-                  }}
-                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#2563EB'}
-                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = '#080808'}
-                  >
+                    textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                    fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s',
+                  }}>
                     Ver carrito →
                   </Link>
                 </div>
@@ -512,21 +648,12 @@ export default function Navbar() {
             <Link href="/productos" className="desktop-nav" style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: '#080808', color: '#fff',
-              padding: '9px 18px', borderRadius: '100px',
+              padding: '8px 20px', borderRadius: '100px',
               textDecoration: 'none', fontSize: '13px', fontWeight: 600,
               fontFamily: "'DM Sans', sans-serif",
               transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
-              marginLeft: '8px',
-            }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = '#8B5CF6'
-                ;(e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.03)'
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = '#080808'
-                ;(e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)'
-              }}
-            >
+              marginLeft: '4px',
+            }}>
               Comprar
               <ChevronRight size={13} />
             </Link>
@@ -536,14 +663,15 @@ export default function Navbar() {
               width: '40px', height: '40px', borderRadius: '50%', border: 'none',
               background: menuOpen ? '#F7F6F4' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#080808', transition: 'background 0.2s',
+              color: '#080808', cursor: 'pointer',
+              transition: 'background 0.2s',
             }} aria-label="Menú">
               {menuOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={1.8} />}
             </button>
           </div>
         </div>
 
-        {/* MOBILE MENU - Updated with gaming subcategories */}
+        {/* MOBILE MENU */}
         {menuOpen && (
           <div className="mobile-menu">
             <Link href="/productos" className="mobile-link">
@@ -551,7 +679,6 @@ export default function Navbar() {
               <ChevronRight size={14} style={{ color: '#C8C3BB' }} />
             </Link>
             
-            {/* Gaming with subcategories */}
             <div>
               <Link href="/productos?cat=gaming" className="mobile-link" style={{ color: '#7C3AED' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
