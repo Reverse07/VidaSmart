@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Zap, PawPrint, Gamepad2, MapPin, Mail, Phone, MessageCircle, Instagram, Facebook, Twitter } from 'lucide-react'
+import { ArrowRight, Zap, PawPrint, Gamepad2, MapPin, Mail, Phone, Instagram, Facebook, Twitter } from 'lucide-react'
 
 const NAV = {
   tienda: [
@@ -32,6 +32,9 @@ const PAYMENT_METHODS = [
   { label: 'Mercado Pago', image: '/img/mercadoPagoLogo.png', width: 64, height: 24 },
   { label: 'WhatsApp', image: '/img/whatsappLogo.png', width: 56, height: 24, isRounded: true },
 ]
+
+const WHATSAPP_NUMBER = '51992550179'
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Hola%20VidaSmart%2C%20me%20interesa%20un%20producto`
 
 export default function Footer() {
   const [visible, setVisible] = useState(false)
@@ -198,11 +201,10 @@ export default function Footer() {
           transform: scale(1.08);
           box-shadow: 0 8px 24px rgba(37,211,102,0.35);
         }
-        .floating-wa svg {
-          width: 28px;
-          height: 28px;
-          stroke: #ffffff;
-          stroke-width: 1.8;
+        .floating-wa img {
+          width: 32px;
+          height: 32px;
+          object-fit: contain;
         }
         
         @media (max-width: 900px) {
@@ -215,6 +217,10 @@ export default function Footer() {
             right: 20px;
             width: 52px;
             height: 52px;
+          }
+          .floating-wa img {
+            width: 28px;
+            height: 28px;
           }
         }
         @media (max-width: 640px) {
@@ -235,18 +241,28 @@ export default function Footer() {
             width: 48px;
             height: 48px;
           }
+          .floating-wa img {
+            width: 24px;
+            height: 24px;
+          }
         }
       `}</style>
 
-      {/* WhatsApp Floating Button - con icono de MessageCircle */}
+      {/* WhatsApp Floating Button - con imagen real */}
       <a
-        href="https://wa.me/51992550179?text=Hola%20VidaSmart%2C%20me%20interesa%20un%20producto"
+        href={WHATSAPP_LINK}
         target="_blank"
         rel="noopener noreferrer"
         className="floating-wa"
         aria-label="WhatsApp"
       >
-        <MessageCircle />
+        <Image
+          src="/img/whatsappLogo.png"
+          alt="WhatsApp"
+          width={32}
+          height={32}
+          style={{ objectFit: 'contain' }}
+        />
       </a>
 
       <footer ref={footerRef} style={{ background: '#fafaf8', borderTop: '1px solid #efefef' }}>
@@ -439,12 +455,18 @@ export default function Footer() {
               </div>
               
               <a
-                href="https://wa.me/51999999999"
+                href={WHATSAPP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whatsapp-button"
               >
-                <MessageCircle size={18} />
+                <Image
+                  src="/img/whatsappLogo.png"
+                  alt="WhatsApp"
+                  width={20}
+                  height={20}
+                  style={{ objectFit: 'contain' }}
+                />
                 Atención por WhatsApp
               </a>
             </div>
@@ -483,7 +505,7 @@ export default function Footer() {
               <div className="footer-heading">Contacto</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
                 <a
-                  href="tel:+51999999999"
+                  href="tel:+51992550179"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -498,7 +520,7 @@ export default function Footer() {
                   onMouseLeave={e => (e.currentTarget.style.color = '#5a5a5a')}
                 >
                   <Phone size={14} style={{ color: '#9a9a9a' }} />
-                  +51 999 999 999
+                  +51 992 550 179
                 </a>
                 <a
                   href="mailto:hola@vidasmart.pe"
@@ -546,7 +568,7 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Bottom bar con métodos de pago - WhatsApp con imagen real PNG */}
+        {/* Bottom bar con métodos de pago */}
         <div className="footer-divider">
           <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 48px' }}>
             <div className="footer-bottom" style={{
