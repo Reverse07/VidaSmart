@@ -63,51 +63,30 @@ function YapePage() {
         lineHeight: 1.6,
         fontFamily: 'DM Sans, sans-serif',
       }}>
-        Transfiere <strong style={{ color: '#15803d', fontSize: '18px' }}>S/{amountToPay}</strong> al siguiente número y envíanos el comprobante por WhatsApp.
+        Transfiere <strong style={{ color: '#15803d', fontSize: '18px' }}>S/{amountToPay}</strong> escaneando el QR o al siguiente número, y envíanos el comprobante por WhatsApp.
       </p>
 
-      {/* QR Code Placeholder */}
+      {/* QR CODE REAL */}
       <div style={{
-        width: '240px',
-        height: '240px',
+        width: '260px',
+        height: '260px',
         background: '#ffffff',
         border: '2px solid #e8e6e1',
         borderRadius: '24px',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: '24px',
         boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+        padding: '16px',
       }}>
-        <div style={{
-          width: '160px',
-          height: '160px',
-          background: '#f5f5f5',
-          borderRadius: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-        }}>
-          <svg width="80" height="80" viewBox="0 0 100 100" style={{ opacity: 0.6 }}>
-            <rect x="10" y="10" width="20" height="20" fill="#15803d" />
-            <rect x="35" y="10" width="20" height="20" fill="#15803d" />
-            <rect x="60" y="10" width="20" height="20" fill="#15803d" />
-            <rect x="10" y="35" width="20" height="20" fill="#15803d" />
-            <rect x="35" y="35" width="20" height="20" fill="#15803d" />
-            <rect x="60" y="35" width="20" height="20" fill="#15803d" />
-            <rect x="10" y="60" width="20" height="20" fill="#15803d" />
-            <rect x="35" y="60" width="20" height="20" fill="#15803d" />
-            <rect x="60" y="60" width="20" height="20" fill="#15803d" />
-          </svg>
-          <span style={{
-            fontFamily: 'DM Mono',
-            fontSize: '10px',
-            color: '#9ca3af',
-            marginTop: '8px',
-          }}>ESCANEA EL QR</span>
-        </div>
+        <Image
+          src="/img/QRYapeLuis.png"
+          alt="QR Yape"
+          width={220}
+          height={220}
+          style={{ objectFit: 'contain' }}
+        />
       </div>
 
       {/* Número Yape */}
@@ -120,7 +99,7 @@ function YapePage() {
         fontFamily: 'DM Mono',
       }}>
         <span style={{ fontSize: '12px', color: '#15803d', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
-          NÚMERO YAPE
+          TAMBIÉN POR TRANSFERENCIA
         </span>
         <span style={{ fontSize: '18px', fontWeight: 700, color: '#15803d', letterSpacing: '1px' }}>
           +51 992 550 179
@@ -148,8 +127,8 @@ function YapePage() {
           CÓMO PAGAR
         </div>
         {[
-          { step: '1', text: 'Abre Yape y transfiere al número +51 992 550 179' },
-          { step: '2', text: `Monto: S/${amountToPay}` },
+          { step: '1', text: 'Escanea el QR o transfiere al número +51 992 550 179' },
+          { step: '2', text: `Monto exacto: S/${amountToPay}` },
           { step: '3', text: 'Envía el comprobante de pago al WhatsApp' },
           { step: '4', text: 'Confirmamos tu pedido en menos de 1 hora ✅' },
         ].map(instruction => (
