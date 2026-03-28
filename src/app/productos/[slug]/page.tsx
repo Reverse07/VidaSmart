@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import React from 'react'
-import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { supabase } from '@/lib/supabase'
@@ -13,9 +14,11 @@ const CAT = {
   mascotas: { bg: '#FFF7ED', accent: '#D97706', text: '#D97706', label: 'Mascotas', icon: <PawPrint size={14} color="#D97706" /> },
 }
 
-const ZOOM       = 2.5   // zoom multiplier
-const ZOOM_PANEL = 440   // zoom result panel px
-const LENS_SIZE  = 120   // lens circle px
+const WHATSAPP_LINK = 'https://wa.me/51992550179?text=Hola%20VidaSmart%2C%20me%20interesa%20el%20producto'
+
+const ZOOM       = 2.5
+const ZOOM_PANEL = 440
+const LENS_SIZE  = 120
 
 function isVideo(src: string) {
   return src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.mov')
@@ -30,7 +33,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
   const [loading, setLoading]         = useState(true)
   const [activeMedia, setActiveMedia] = useState(0)
 
-  // Zoom state — xFrac/yFrac are 0‥1
   const [zooming, setZooming]   = useState(false)
   const [zoomPos, setZoomPos]   = useState({ x: 0.5, y: 0.5 })
   const [lensPos, setLensPos]   = useState({ x: 0, y: 0 })
@@ -55,11 +57,9 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
-    // 0‥1 fraction — used directly for zoom panel offset
     const xFrac = Math.max(0, Math.min(1, x / rect.width))
     const yFrac = Math.max(0, Math.min(1, y / rect.height))
 
-    // lens circle clamped inside the container
     const lensX = Math.max(LENS_SIZE / 2, Math.min(rect.width  - LENS_SIZE / 2, x)) - LENS_SIZE / 2
     const lensY = Math.max(LENS_SIZE / 2, Math.min(rect.height - LENS_SIZE / 2, y)) - LENS_SIZE / 2
 
@@ -95,7 +95,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
   const isCurrentVideo      = currentMedia ? isVideo(currentMedia) : false
   const canZoom             = !isCurrentVideo && !!currentMedia
 
-  // zoom panel image offset: how many px to shift so the right region shows
   const zoomImgLeft = -(zoomPos.x * (ZOOM - 1) * ZOOM_PANEL)
   const zoomImgTop  = -(zoomPos.y * (ZOOM - 1) * ZOOM_PANEL)
 
@@ -137,7 +136,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
         }
         .pd-main-wrap.zooming { cursor: crosshair; }
 
-        /* Lens */
         .pd-lens {
           position: absolute;
           width: ${LENS_SIZE}px; height: ${LENS_SIZE}px;
@@ -148,7 +146,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.25);
         }
 
-        /* Zoom panel */
         .pd-zoom-result {
           position: absolute;
           left: calc(100% + 16px); top: 0;
@@ -216,7 +213,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           {/* ── GALLERY ── */}
           <div style={{ position: 'sticky', top: '90px' }}>
 
-            {/* Wrapper that holds both main image and zoom panel */}
             <div style={{ position: 'relative', marginBottom: '12px' }}>
               <div
                 ref={imgContainerRef}
@@ -230,7 +226,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 onMouseLeave={() => setZooming(false)}
                 onMouseMove={canZoom ? handleMouseMove : undefined}
               >
-                {/* Gaming glow */}
                 {isDark && (
                   <div style={{
                     position: 'absolute', inset: 0,
@@ -260,7 +255,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   </span>
                 )}
 
-                {/* Discount badge */}
                 {discount > 0 && (
                   <div style={{
                     position: 'absolute', top: '20px', left: '20px',
@@ -271,12 +265,10 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                   }}>-{discount}%</div>
                 )}
 
-                {/* Lens circle */}
                 {zooming && canZoom && (
                   <div className="pd-lens" style={{ left: lensPos.x, top: lensPos.y }} />
                 )}
 
-                {/* Zoom hint */}
                 {!zooming && canZoom && (
                   <div style={{
                     position: 'absolute', bottom: '16px', right: '16px',
@@ -291,7 +283,6 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
                 )}
               </div>
 
-              {/* ── ZOOM RESULT PANEL ── */}
               {zooming && canZoom && (
                 <div className="pd-zoom-result" style={{
                   background: isDark ? '#0a0614' : '#fff',
@@ -474,17 +465,38 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               </button>
             </div>
 
-            {/* Yape */}
+            {/* YAPE PROMO SECTION - CON IMAGEN REAL DE YAPE */}
             <div style={{
               background: isDark ? 'rgba(34,197,94,0.08)' : '#f0fdf4',
               border: isDark ? '1px solid rgba(34,197,94,0.2)' : '1px solid #86efac',
               borderRadius: '16px', padding: '16px 20px',
               display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px',
             }}>
-              <span style={{ fontSize: '24px' }}>📱</span>
+              <div style={{
+                width: '48px',
+                height: '32px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Image
+                  src="/img/yapeLogo.png"
+                  alt="Yape"
+                  width={48}
+                  height={20}
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#15803d', fontFamily: "'DM Sans', sans-serif" }}>Paga con Yape y ahorra S/5</div>
-                <div style={{ fontSize: '12px', color: '#16a34a', fontFamily: "'DM Sans', sans-serif" }}>Coordina por WhatsApp tras tu pedido</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#15803d', fontFamily: "'DM Sans', sans-serif" }}>
+                  Paga con Yape y ahorra S/5
+                </div>
+                <div style={{ fontSize: '12px', color: '#16a34a', fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <MessageCircle size={12} />
+                  Coordina por WhatsApp tras tu pedido
+                </div>
               </div>
             </div>
 
