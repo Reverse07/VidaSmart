@@ -4,46 +4,79 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
+// PRODUCTOS REALES DE VIDASMART
 const ITEMS = [
   {
     num: '01',
-    problem: 'Cables desordenados en tu escritorio',
-    solution: 'Organizador de cables inteligente',
-    desc: 'Orden instantáneo. Compatible con todos tus dispositivos. Instálalo en 2 minutos.',
-    cta: { label: 'Ver organizador', href: '/productos/organizador-cables-premium' },
-    color: '#2563EB',
-    bg: '#EFF6FF',
-    emoji: '🗂️',
+    problem: 'Periféricos básicos que limitan tu rendimiento',
+    solution: 'ATK Blue F1 Leviatan',
+    desc: 'Mouse gaming inalámbrico con sensor PAW3395 26K DPI y polling 4K Hz. Switches ópticos de larga duración.',
+    cta: { label: 'Ver mouse', href: '/productos/atk-blue-f1-leviatan' },
+    color: '#8B5CF6',
+    bg: '#1a0f2e',
+    emoji: '🖱️',
+    image: '/img/ATK BLUE F1 LEVIATAN/ATK BLUE F1 LEVIATAN_img1.jpg',
+    price: 375,
   },
   {
     num: '02',
-    problem: 'Tu mascota sin agua en los paseos',
-    solution: 'Bebedero portátil anti-derrame',
-    desc: 'Siempre hidratado. Cabe en cualquier bolso. Un botón para servir el agua.',
-    cta: { label: 'Ver bebedero', href: '/productos/bebedero-portatil' },
-    color: '#D97706',
-    bg: '#FFF7ED',
+    problem: 'Tu mascota sin hidratación suficiente',
+    solution: 'Fuente Petkit Eversweet Solo',
+    desc: 'Fuente inteligente con filtro de carbono activo, sensor de agua y modo silencioso. Capacidad 2L, ideal para gatos.',
+    cta: { label: 'Ver fuente', href: '/productos/fuente-agua-petkit-eversweet-solo' },
+    color: '#2563EB',
+    bg: '#EFF6FF',
     emoji: '💧',
+    image: '/img/Fuente de agua Petkit Eversweet SOLO – Blanco/Fuente de agua Petkit Eversweet SOLO – Blanco_img1.webp',
+    price: 159,
   },
   {
     num: '03',
-    problem: 'Luces que olvidas apagar',
-    solution: 'Enchufe WiFi con control remoto',
-    desc: 'Ahorra energía. Controla desde cualquier lugar. Compatible con Alexa y Google Home.',
-    cta: { label: 'Ver enchufe', href: '/productos/enchufe-wifi-inteligente' },
-    color: '#7C3AED',
-    bg: '#F5F3FF',
-    emoji: '⚡',
+    problem: 'Iluminación aburrida y sin ambiente',
+    solution: 'Tira LED Inteligente Gaming',
+    desc: 'Tira LED WiFi con control de música sync, 16M colores RGB y app Tuya. Ideal para setup gaming, TV y ambientes.',
+    cta: { label: 'Ver tira LED', href: '/productos/tira-led-inteligente-gaming' },
+    color: '#D97706',
+    bg: '#FFF7ED',
+    emoji: '✨',
+    image: '/img/TIRAS LED GAMING/Tira Led Inteligente_img1.webp',
+    price: 390,
   },
   {
     num: '04',
-    problem: 'Pelo de mascota por todas partes',
-    solution: 'Cepillo auto-limpiante',
-    desc: 'Un botón limpia el cepillo en 1 segundo. Sin ensuciar tus manos.',
-    cta: { label: 'Ver cepillo', href: '/productos/cepillo-auto-limpiante' },
+    problem: 'Focos comunes sin control inteligente',
+    solution: 'Focos WiFi RGB',
+    desc: 'Pack de focos inteligentes WiFi con 16M colores RGB. Control por app Tuya, compatible con Alexa y Google Home.',
+    cta: { label: 'Ver focos', href: '/productos/focos-wifi-rgb' },
     color: '#16A34A',
     bg: '#F0FDF4',
-    emoji: '🐾',
+    emoji: '💡',
+    image: '/img/FOCOS WIFI RGB/Focos WiFi RGB_Img1.webp',
+    price: 65,
+  },
+  {
+    num: '05',
+    problem: 'Teclados lentos que pierden inputs',
+    solution: 'AULA HERO 68HE',
+    desc: 'Teclado gaming 65% con switches Hall Effect magnéticos y polling rate 8K Hz. Conectividad tri-modo, teclas PBT.',
+    cta: { label: 'Ver teclado', href: '/productos/aula-hero-68he' },
+    color: '#7C3AED',
+    bg: '#F5F3FF',
+    emoji: '⌨️',
+    image: '/img/AULA HERO 68HE/AULA HERO 68HE_img1.jpg',
+    price: 288,
+  },
+  {
+    num: '06',
+    problem: 'Muebles rayados por tu gato',
+    solution: 'Rascador Salem Cat',
+    desc: 'Rascador moderno con diseño arquitectónico estilo Salem. Cartón corrugado premium, base estable y superficie de sisal.',
+    cta: { label: 'Ver rascador', href: '/productos/rascador-salem-cat' },
+    color: '#EA580C',
+    bg: '#FFF4ED',
+    emoji: '🐱',
+    image: '/img/Rascador Salem cat/Rascador Salem cat_img1.webp',
+    price: 399,
   },
 ]
 
@@ -65,10 +98,10 @@ export default function ProblemSolution() {
     return () => observer.disconnect()
   }, [])
 
-  // Auto-cycle through items every 4s
+  // Auto-cycle through items every 5s
   useEffect(() => {
-    const tick = 40 // ms per progress tick
-    const total = 4000 // ms total
+    const tick = 50 // ms per progress tick
+    const total = 5000 // ms total
 
     const startCycle = () => {
       setProgress(0)
@@ -164,20 +197,22 @@ export default function ProblemSolution() {
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 480px;
+          min-height: 500px;
           transition: background 0.6s ease;
         }
 
-        /* ── EMOJI FLOAT ── */
-        @keyframes emojiFloat {
-          0%, 100% { transform: translateY(0) rotate(-2deg); }
-          50%       { transform: translateY(-12px) rotate(2deg); }
+        /* ── IMAGE FLOAT ── */
+        @keyframes imageFloat {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-8px); }
         }
-        .ps-emoji {
-          animation: emojiFloat 4s ease-in-out infinite;
-          font-size: 96px;
-          line-height: 1;
-          filter: drop-shadow(0 12px 24px rgba(0,0,0,0.12));
+        .ps-product-image {
+          animation: imageFloat 5s ease-in-out infinite;
+          width: 70%;
+          max-width: 280px;
+          height: auto;
+          filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+          transition: all 0.4s ease;
         }
 
         /* ── CONTENT SWAP ── */
@@ -204,6 +239,14 @@ export default function ProblemSolution() {
           font-weight: 500;
         }
 
+        /* ── PRICE TAG ── */
+        .ps-price {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 32px;
+          font-weight: 400;
+          margin-top: 12px;
+        }
+
         /* ── CTA ── */
         .ps-cta {
           display: inline-flex;
@@ -225,39 +268,41 @@ export default function ProblemSolution() {
           transform: scale(1.04);
           box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
-        .ps-cta svg {
-          transition: transform 0.25s ease;
-        }
         .ps-cta:hover svg { transform: translateX(4px); }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
           .ps-grid { grid-template-columns: 1fr !important; }
-          .ps-visual { min-height: 280px; }
+          .ps-visual { min-height: 380px; }
           .ps-sticky { position: static !important; }
+          .ps-product-image { width: 50%; }
+        }
+
+        @media (max-width: 640px) {
+          .ps-product-image { width: 60%; }
         }
       `}</style>
 
-      <section ref={sectionRef} style={{ background: '#F5F3EF', padding: '140px 0', overflow: 'hidden' }}>
+      <section ref={sectionRef} style={{ background: '#FAFAF8', padding: '120px 0', overflow: 'hidden' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 48px' }}>
 
           {/* Top label */}
-          <div className={`ps-reveal ps-d1 ${visible ? 'ps-in' : ''}`} style={{ marginBottom: '72px' }}>
+          <div className={`ps-reveal ps-d1 ${visible ? 'ps-in' : ''}`} style={{ marginBottom: '64px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
               <div style={{ width: '40px', height: '1px', background: '#C8C3BB' }} />
               <span style={{
                 fontFamily: "'DM Mono', monospace",
                 fontSize: '11px', letterSpacing: '0.14em',
                 textTransform: 'uppercase', color: '#A09890',
-              }}>El problema que resolvemos</span>
+              }}>Soluciones reales</span>
             </div>
             <div style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: 'clamp(52px, 7vw, 88px)',
-              lineHeight: 0.88, color: '#080808',
+              fontSize: 'clamp(48px, 7vw, 80px)',
+              lineHeight: 0.9, color: '#080808',
             }}>
-              TU VIDA,<br />
-              <span style={{ color: '#A09890' }}>SIMPLIFICADA.</span>
+              PROBLEMAS QUE<br />
+              <span style={{ color: '#A09890' }}>RESOLVEMOS.</span>
             </div>
           </div>
 
@@ -275,10 +320,10 @@ export default function ProblemSolution() {
             <div className={`ps-reveal ps-d2 ${visible ? 'ps-in' : ''}`}>
               <p style={{
                 fontSize: '16px', fontWeight: 300, color: '#7A7269',
-                lineHeight: 1.7, marginBottom: '40px', maxWidth: '380px',
+                lineHeight: 1.6, marginBottom: '40px', maxWidth: '400px',
                 fontFamily: "'DM Sans', sans-serif",
               }}>
-                Cada producto resuelve un problema real. Sin complicaciones, sin manuales largos.
+                Cada producto está diseñado para resolver un problema específico. Tecnología que simplifica tu día a día.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -315,23 +360,34 @@ export default function ProblemSolution() {
                       </h3>
 
                       {activeItem === i && (
-                        <p style={{
-                          fontSize: '13px', color: '#7A7269',
-                          marginTop: '8px', lineHeight: 1.6,
-                          fontFamily: "'DM Sans', sans-serif",
-                          animation: 'contentIn 0.35s cubic-bezier(0.16,1,0.3,1)',
-                        }}>
-                          {item.desc}
-                        </p>
+                        <>
+                          <p style={{
+                            fontSize: '13px', color: '#7A7269',
+                            marginTop: '8px', lineHeight: 1.5,
+                            fontFamily: "'DM Sans', sans-serif",
+                            animation: 'contentIn 0.35s cubic-bezier(0.16,1,0.3,1)',
+                          }}>
+                            {item.desc}
+                          </p>
+                          <div style={{
+                            marginTop: '10px',
+                            fontFamily: "'Bebas Neue', sans-serif",
+                            fontSize: '20px',
+                            color: item.color,
+                            animation: 'contentIn 0.4s cubic-bezier(0.16,1,0.3,1)',
+                          }}>
+                            S/{item.price}
+                          </div>
+                        </>
                       )}
                     </div>
 
                     {/* Emoji indicator */}
                     <span style={{
-                      fontSize: '20px',
+                      fontSize: '24px',
                       opacity: activeItem === i ? 1 : 0.3,
                       transition: 'opacity 0.3s ease, transform 0.3s ease',
-                      transform: activeItem === i ? 'scale(1.15)' : 'scale(1)',
+                      transform: activeItem === i ? 'scale(1.1)' : 'scale(1)',
                       flexShrink: 0,
                     }}>{item.emoji}</span>
 
@@ -361,17 +417,17 @@ export default function ProblemSolution() {
                 className="ps-visual"
                 style={{ background: active.bg }}
               >
-                {/* Dot grid texture */}
+                {/* Pattern overlay */}
                 <div style={{
                   position: 'absolute', inset: 0,
-                  backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0)',
+                  backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0)',
                   backgroundSize: '24px 24px',
                 }} />
 
                 {/* Ambient glow */}
                 <div style={{
                   position: 'absolute', inset: 0,
-                  background: `radial-gradient(ellipse at 50% 40%, ${active.color}18, transparent 65%)`,
+                  background: `radial-gradient(ellipse at 50% 40%, ${active.color}15, transparent 70%)`,
                   transition: 'background 0.6s ease',
                 }} />
 
@@ -383,47 +439,61 @@ export default function ProblemSolution() {
                     position: 'relative', zIndex: 1,
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', textAlign: 'center',
-                    padding: '48px 40px',
+                    padding: '40px 32px',
                   }}
                 >
-                  {/* Emoji */}
-                  <div className="ps-emoji">{active.emoji}</div>
+                  {/* Product Image */}
+                  {active.image ? (
+                    <img
+                      src={active.image}
+                      alt={active.solution}
+                      className="ps-product-image"
+                    />
+                  ) : (
+                    <div className="ps-emoji" style={{ fontSize: '80px' }}>{active.emoji}</div>
+                  )}
 
                   {/* Badge */}
                   <div
                     className="ps-badge"
                     style={{
-                      background: `${active.color}18`,
+                      background: `${active.color}15`,
                       color: active.color,
-                      border: `1px solid ${active.color}30`,
-                      marginTop: '28px',
+                      border: `1px solid ${active.color}25`,
+                      marginTop: '24px',
                     }}
                   >
                     <span style={{
                       width: '5px', height: '5px', borderRadius: '50%',
                       background: active.color,
                     }} />
-                    Solución VidaSmart
+                    VidaSmart
                   </div>
 
-                  {/* Solution title */}
+                  {/* Product name */}
                   <div style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: 'clamp(32px, 4vw, 48px)',
+                    fontSize: 'clamp(28px, 4vw, 40px)',
                     color: '#080808',
-                    lineHeight: 0.95,
-                    marginBottom: '16px',
+                    lineHeight: 1.1,
+                    marginBottom: '8px',
                     letterSpacing: '-0.01em',
                   }}>
-                    {active.solution.toUpperCase()}
+                    {active.solution}
                   </div>
 
-                  {/* Desc */}
+                  {/* Price */}
+                  <div className="ps-price" style={{ color: active.color }}>
+                    S/{active.price}
+                  </div>
+
+                  {/* Description */}
                   <p style={{
-                    fontSize: '14px', color: '#7A7269',
-                    lineHeight: 1.65, maxWidth: '300px',
+                    fontSize: '13px', color: '#7A7269',
+                    lineHeight: 1.6, maxWidth: '280px',
                     fontFamily: "'DM Sans', sans-serif",
                     fontWeight: 300,
+                    marginTop: '12px',
                   }}>
                     {active.desc}
                   </p>
@@ -441,9 +511,9 @@ export default function ProblemSolution() {
 
                 {/* Corner number */}
                 <div style={{
-                  position: 'absolute', bottom: '24px', right: '28px',
+                  position: 'absolute', bottom: '20px', right: '24px',
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '80px', color: `${active.color}12`,
+                  fontSize: '72px', color: `${active.color}12`,
                   lineHeight: 1, userSelect: 'none',
                   transition: 'color 0.6s ease',
                 }}>
@@ -454,14 +524,14 @@ export default function ProblemSolution() {
               {/* Dots indicator */}
               <div style={{
                 display: 'flex', justifyContent: 'center',
-                gap: '8px', marginTop: '20px',
+                gap: '10px', marginTop: '24px',
               }}>
                 {ITEMS.map((item, i) => (
                   <button
                     key={i}
                     onClick={() => handleSelect(i)}
                     style={{
-                      width: activeItem === i ? '24px' : '8px',
+                      width: activeItem === i ? '28px' : '8px',
                       height: '8px',
                       borderRadius: '4px',
                       border: 'none',
