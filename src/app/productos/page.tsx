@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Zap, PawPrint, Gamepad2, Plus, Check, Mouse, Keyboard, Headset, Monitor, Sofa, SquareMousePointer } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -45,19 +44,13 @@ const FILTERS = [
   { label: 'Mascotas',   value: 'mascotas', accent: '#D97706' },
 ]
 
-// Métodos de pago con logos reales
-const PAYMENT_METHODS = [
-  { label: 'Yape', image: '/img/yapeLogo.png', width: 48, height: 20 },
-  { label: 'Mercado Pago', image: '/img/mercadoPagoLogo.png', width: 56, height: 20 },
-  { label: 'WhatsApp', icon: '💬' },
-]
-
 function ProductCard({ p }: { p: Product }) {
   const [added, setAdded] = useState(false)
   const addItem = useCartStore(state => state.addItem)
   const style = CAT_STYLE[p.category] ?? CAT_STYLE.tech
   const discount = p.compare_price ? Math.round((1 - p.price / p.compare_price) * 100) : 0
 
+  // Get subcategory label if exists
   const subcatInfo = p.subcategory && GAMING_SUBCATEGORIES.find(sc => sc.value === p.subcategory)
 
   return (
@@ -239,10 +232,12 @@ function Catalogo() {
     async function load() {
       let q = supabase.from('products').select('*').eq('is_active', true).order('created_at', { ascending: false })
       
+      // Filter by main category
       if (cat === 'tech' || cat === 'mascotas' || cat === 'gaming') {
         q = q.eq('category', cat)
       }
       
+      // If gaming and subcategory is specified, filter by subcategory
       if (cat === 'gaming' && subcat && subcat !== 'all') {
         q = q.eq('subcategory', subcat)
       }
@@ -256,6 +251,7 @@ function Catalogo() {
 
   const isDark = cat === 'gaming'
   const currentSubcat = subcat === 'all' ? null : subcat
+  const activeSubcat = GAMING_SUBCATEGORIES.find(sc => sc.value === currentSubcat) || GAMING_SUBCATEGORIES[0]
 
   const TITLE: Record<string, string> = {
     gaming:   'PC GAMING\nPERIFÉRICOS',
@@ -325,7 +321,7 @@ function Catalogo() {
           })}
         </div>
 
-        {/* Gaming Subcategory Filters */}
+        {/* Gaming Subcategory Filters - Only show when gaming category is selected */}
         {cat === 'gaming' && (
           <div style={{
             display: 'flex', gap: '8px', flexWrap: 'wrap',
@@ -357,56 +353,6 @@ function Catalogo() {
             })}
           </div>
         )}
-
-        {/* PAYMENT METHODS STRIP - IMAGEN DE YAPE */}
-        <div style={{
-          marginTop: '48px',
-          paddingTop: '32px',
-          borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.1)' : '#E2DED8'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '20px',
-        }}>
-          <span style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: '10px',
-            letterSpacing: '0.08em',
-            color: isDark ? '#6B5B8A' : '#A09890',
-          }}>
-            Aceptamos
-          </span>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            {PAYMENT_METHODS.map(method => (
-              <div key={method.label} style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 14px',
-                background: isDark ? 'rgba(255,255,255,0.05)' : '#fff',
-                border: `1px solid ${isDark ? 'rgba(139,92,246,0.2)' : '#E2DED8'}`,
-                borderRadius: '40px',
-                fontSize: '11px',
-                fontFamily: "'Inter', sans-serif",
-                color: isDark ? '#C4B5FD' : '#5a5a5a',
-              }}>
-                {method.image ? (
-                  <Image
-                    src={method.image}
-                    alt={method.label}
-                    width={method.width}
-                    height={method.height}
-                    style={{ objectFit: 'contain' }}
-                  />
-                ) : (
-                  <span style={{ fontSize: '14px' }}>{method.icon}</span>
-                )}
-                <span>{method.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* GRID */}
