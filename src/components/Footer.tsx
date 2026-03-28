@@ -506,7 +506,7 @@ export default function Footer() {
                   +51 992 550 179
                 </a>
                 <a
-                  href="mailto:hola@vidasmart.pe"
+                  href="mailto:tmldiego0@hotmail.com"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
