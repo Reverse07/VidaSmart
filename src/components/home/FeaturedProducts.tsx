@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { ArrowRight, Plus, Check, Zap, PawPrint, Gamepad2, Mouse } from 'lucide-react'
+import { ArrowRight, Plus, Check, Zap, PawPrint, Gamepad2, Mouse, Star } from 'lucide-react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 
@@ -17,13 +17,29 @@ interface Product {
   images?: string[]
 }
 
+// PRODUCTOS ESTRELLA MANUALES (IDs de tus productos más vendidos)
+const STARRED_IDS = [
+  '0c0fcb7d-d85b-4318-9726-719cd67a66a0', // ATK Blue F1 Leviatan
+  'fa179fc5-a939-46a6-a474-4e82474aa653', // Attack Shark R3
+  'fbe99596-8462-4212-9b47-1812d0723c92', // AULA HERO 68HE
+  '6f43e725-f2a2-45a9-9173-b4a5d14351d0', // Logitech G502 Hero
+  'f8774579-6cb4-4f7f-bc2b-08339ebf373d', // Razer Basilisk V3
+  '8fee1e6a-b16f-4806-a27f-42df6766ab8b', // Logitech G Pro X Superlight 2
+  '21746b01-0d47-486f-bdc0-e7b58840cd07', // Focos WiFi RGB
+  'e62a9380-70f3-4d3a-83b4-a2f57eff2ba0', // Foco Tapo L630
+  '82ddefa9-b6b2-49a0-8935-c6cd003bb2bb', // Tira LED Gaming
+  '9edc5cd6-0458-4f5f-9f2e-388119ba20f6', // Fuente Petkit
+  'cb5a551f-13c9-407c-9cde-e5f4d6b7e8c2', // Rascador Salem
+  '7cceaf96-1951-43fd-bdc8-98586a93dfc4', // Alfombra olfativa
+]
+
 const CATEGORY_STYLE: Record<string, { bg: string; icon: React.ReactElement; accent: string; label: string }> = {
   gaming:   { bg: '#1a0f2e', icon: <Gamepad2 size={36} color="#A78BFA" />, accent: '#8B5CF6', label: 'Gaming' },
   tech:     { bg: '#EFF6FF', icon: <Zap size={36} color="#2563EB" />,      accent: '#2563EB', label: 'Tech' },
   mascotas: { bg: '#FFF7ED', icon: <PawPrint size={36} color="#D97706" />, accent: '#D97706', label: 'Mascotas' },
 }
 
-function ProductCard({ p }: { p: Product }) {
+function ProductCard({ p, featured = false }: { p: Product; featured?: boolean }) {
   const [added, setAdded] = useState(false)
   const addItem = useCartStore(state => state.addItem)
   const style = CATEGORY_STYLE[p.category] ?? CATEGORY_STYLE.tech
@@ -44,6 +60,7 @@ function ProductCard({ p }: { p: Product }) {
           border: `1px solid ${p.category === 'gaming' ? 'rgba(139,92,246,0.2)' : '#E2DED8'}`,
           borderRadius: '24px', overflow: 'hidden',
           transition: 'transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease',
+          position: 'relative',
         }}
         onMouseEnter={e => {
           (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)'
@@ -56,6 +73,19 @@ function ProductCard({ p }: { p: Product }) {
           ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
         }}
       >
+        {/* Badge Estrella */}
+        {featured && (
+          <div style={{
+            position: 'absolute', top: '14px', left: '14px', zIndex: 10,
+            background: '#F59E0B', color: '#fff', borderRadius: '100px',
+            padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px',
+            fontFamily: "'DM Mono', monospace", fontSize: '9px', fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          }}>
+            <Star size={10} fill="#fff" /> ESTRELLA
+          </div>
+        )}
+        
         {/* Image */}
         <div style={{
           background: style.bg, aspectRatio: '1',
@@ -92,19 +122,6 @@ function ProductCard({ p }: { p: Product }) {
               fontFamily: "'DM Mono', monospace", fontSize: '10px',
               padding: '4px 8px', borderRadius: '100px', zIndex: 2,
             }}>-{discount}%</div>
-          )}
-          {p.category === 'gaming' && (
-            <div style={{
-              position: 'absolute', bottom: '14px', left: '14px',
-              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)',
-              borderRadius: '100px', padding: '3px 10px',
-              fontFamily: "'DM Mono', monospace", fontSize: '9px',
-              color: '#C4B5FD', letterSpacing: '0.08em',
-              backdropFilter: 'blur(8px)', zIndex: 2,
-              display: 'flex', alignItems: 'center', gap: '4px',
-            }}>
-              <Mouse size={9} color="#A78BFA" /> PERIFÉRICO
-            </div>
           )}
         </div>
 
@@ -148,7 +165,6 @@ function ProductCard({ p }: { p: Product }) {
               fontFamily: "'DM Sans', sans-serif",
               transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
               transform: added ? 'scale(0.97)' : 'scale(1)',
-              boxShadow: added ? 'none' : p.category === 'gaming' ? '0 4px 14px rgba(139,92,246,0.4)' : 'none',
             }}>
               {added ? <><Check size={12} /> Listo</> : <><Plus size={12} /> Agregar</>}
             </button>
@@ -184,21 +200,11 @@ function SkeletonCard({ dark = false }: { dark?: boolean }) {
   )
 }
 
-type FilterKey = 'all' | 'gaming' | 'tech' | 'mascotas'
-
-const FILTERS: { key: FilterKey; label: string; accent: string }[] = [
-  { key: 'all',      label: 'Todo',       accent: '#080808' },
-  { key: 'gaming',   label: 'Gaming',     accent: '#8B5CF6' },
-  { key: 'tech',     label: 'Tecnología', accent: '#2563EB' },
-  { key: 'mascotas', label: 'Mascotas',   accent: '#D97706' },
-]
-
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [filter, setFilter]     = useState<FilterKey>('all')
-  const [visible, setVisible]   = useState(false)
-  const sectionRef              = useRef<HTMLElement>(null)
+  const [loading, setLoading] = useState(true)
+  const [visible, setVisible] = useState(false)
+  const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -210,27 +216,21 @@ export default function FeaturedProducts() {
   }, [])
 
   useEffect(() => {
-    async function load() {
+    async function loadStarredProducts() {
       setLoading(true)
-      if (filter === 'all') {
-        // 5 destacados de cada categoría
-        const [gaming, tech, mascotas] = await Promise.all([
-          supabase.from('products').select('*').eq('is_active', true).eq('category', 'gaming').order('created_at', { ascending: false }).limit(5),
-          supabase.from('products').select('*').eq('is_active', true).eq('category', 'tech').order('created_at', { ascending: false }).limit(5),
-          supabase.from('products').select('*').eq('is_active', true).eq('category', 'mascotas').order('created_at', { ascending: false }).limit(5),
-        ])
-        setProducts([...(gaming.data ?? []), ...(tech.data ?? []), ...(mascotas.data ?? [])])
-      } else {
-        // Categoría específica: mostrar 8
-        const { data } = await supabase
-          .from('products').select('*').eq('is_active', true).eq('category', filter)
-          .order('created_at', { ascending: false }).limit(8)
-        setProducts(data ?? [])
-      }
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .in('id', STARRED_IDS)
+      
+      // Mantener el orden de STARRED_IDS
+      const ordered = STARRED_IDS.map(id => data?.find(p => p.id === id)).filter(Boolean) as Product[]
+      setProducts(ordered)
       setLoading(false)
     }
-    load()
-  }, [filter])
+    loadStarredProducts()
+  }, [])
 
   return (
     <>
@@ -244,15 +244,6 @@ export default function FeaturedProducts() {
           transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
         }
         .fp-reveal.in { opacity: 1; transform: translateY(0); }
-        .filter-pill {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-          padding: 9px 20px; border-radius: 100px;
-          border: 1.5px solid #E2DED8;
-          background: transparent; color: #A09890; cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
-        }
-        .filter-pill:hover { border-color: #C8C3BB; color: #5C554E; }
       `}</style>
 
       <section ref={sectionRef} style={{ padding: '120px 0', background: '#FAFAF8' }}>
@@ -268,7 +259,7 @@ export default function FeaturedProducts() {
               <span style={{
                 fontFamily: "'DM Mono', monospace", fontSize: '11px',
                 letterSpacing: '0.12em', textTransform: 'uppercase', color: '#A09890',
-              }}>Más vendidos</span>
+              }}>Lo más vendido</span>
               <div style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: 'clamp(40px, 6vw, 72px)',
@@ -280,40 +271,20 @@ export default function FeaturedProducts() {
               textDecoration: 'none', fontWeight: 500, fontSize: '14px',
               color: '#7A7269', fontFamily: "'DM Sans', sans-serif",
               transition: 'color 0.2s', paddingBottom: '4px',
-            }}
-              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#080808'}
-              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#7A7269'}
-            >
+            }}>
               Ver todos <ArrowRight size={14} />
             </Link>
           </div>
 
-          {/* Filters */}
-          <div className={`fp-reveal ${visible ? 'in' : ''}`}
-            style={{ display: 'flex', gap: '8px', marginBottom: '40px', transitionDelay: '0.1s', flexWrap: 'wrap' }}
-          >
-            {FILTERS.map(f => (
-              <button key={f.key} className="filter-pill" onClick={() => setFilter(f.key)} style={{
-                background: filter === f.key ? f.accent : 'transparent',
-                borderColor: filter === f.key ? f.accent : '#E2DED8',
-                color: filter === f.key ? '#fff' : '#A09890',
-                boxShadow: filter === f.key && f.key === 'gaming' ? '0 4px 14px rgba(139,92,246,0.35)' : 'none',
-              }}>{f.label}</button>
-            ))}
-          </div>
-
           {/* Contador */}
           <div className={`fp-reveal ${visible ? 'in' : ''}`} style={{
-            marginBottom: '24px', transitionDelay: '0.15s',
+            marginBottom: '24px', transitionDelay: '0.05s',
           }}>
             <span style={{
               fontFamily: "'DM Mono', monospace", fontSize: '10px',
               letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C8C3BB',
             }}>
-              {filter === 'all'
-                ? 'Mostrando 5 de cada categoría'
-                : `Mostrando ${products.length} productos`
-              }
+              {!loading && `${products.length} productos destacados para ti`}
             </span>
           </div>
 
@@ -324,48 +295,18 @@ export default function FeaturedProducts() {
             gap: '16px',
           }}>
             {loading
-              ? [...Array(filter === 'all' ? 15 : 8)].map((_, i) => (
-                  <SkeletonCard key={i} dark={filter === 'gaming'} />
-                ))
+              ? [...Array(12)].map((_, i) => <SkeletonCard key={i} dark={false} />)
               : products.map((p, i) => (
                 <div key={p.slug} style={{
                   opacity: visible ? 1 : 0,
                   transform: visible ? 'translateY(0)' : 'translateY(20px)',
                   transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.05}s, transform 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.05}s`,
                 }}>
-                  <ProductCard p={p} />
+                  <ProductCard p={p} featured={i < 3} />
                 </div>
               ))
             }
           </div>
-
-          {/* Ver más */}
-          {!loading && (
-            <div className={`fp-reveal ${visible ? 'in' : ''}`} style={{
-              textAlign: 'center', marginTop: '48px',
-            }}>
-              <Link href={filter === 'all' ? '/productos' : `/productos?cat=${filter}`} style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                fontFamily: "'DM Mono', monospace", fontSize: '11px',
-                letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: '#7A7269', textDecoration: 'none',
-                padding: '12px 28px', borderRadius: '100px',
-                border: '1.5px solid #E2DED8',
-                transition: 'all 0.2s ease',
-              }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = '#080808'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#080808'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2DED8'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#7A7269'
-                }}
-              >
-                Ver catálogo completo <ArrowRight size={12} />
-              </Link>
-            </div>
-          )}
         </div>
       </section>
     </>
