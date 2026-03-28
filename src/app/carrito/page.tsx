@@ -2,7 +2,8 @@
 
 import { useCartStore } from '@/store/cartStore'
 import Link from 'next/link'
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Gamepad2, Zap, PawPrint } from 'lucide-react'
+import Image from 'next/image'
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Gamepad2, Zap, PawPrint, MessageCircle } from 'lucide-react'
 
 function ItemIcon({ slug, category }: { slug: string; category?: string }) {
   if (category === 'gaming') return <Gamepad2 size={24} color="#A78BFA" />
@@ -17,6 +18,8 @@ function getCategory(slug: string): string {
   if (petSlugs.some(s => slug.includes(s))) return 'mascotas'
   return 'tech'
 }
+
+const WHATSAPP_LINK = 'https://wa.me/51992550179?text=Hola%20VidaSmart%2C%20tengo%20un%20carrito%20con%20productos'
 
 export default function CarritoPage() {
   const { items, removeItem, updateQuantity, total, itemCount } = useCartStore()
@@ -37,6 +40,11 @@ export default function CarritoPage() {
       </div>
     )
   }
+
+  const shippingCost = total() >= 100 ? 0 : 10
+  const finalTotal = total() + shippingCost
+  const yapeDiscount = 5
+  const totalWithYape = finalTotal - yapeDiscount
 
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
@@ -190,8 +198,8 @@ export default function CarritoPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: '#7A7269' }}>Envío Lima</span>
-                <span style={{ color: total() >= 100 ? '#16a34a' : '#080808', fontWeight: 600 }}>
-                  {total() >= 100 ? 'GRATIS' : 'S/10'}
+                <span style={{ color: shippingCost === 0 ? '#16a34a' : '#080808', fontWeight: 600 }}>
+                  {shippingCost === 0 ? 'GRATIS' : `S/${shippingCost}`}
                 </span>
               </div>
               {total() < 100 && (
@@ -213,21 +221,90 @@ export default function CarritoPage() {
             }}>
               <span style={{ fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>Total</span>
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '36px', color: '#080808' }}>
-                S/{total() >= 100 ? total() : total() + 10}
+                S/{finalTotal}
               </span>
             </div>
 
-            {/* Yape */}
+            {/* YAPE PROMO - CON IMAGEN REAL */}
             <div style={{
-              background: '#F0FDF4', border: '1px solid #86EFAC',
-              borderRadius: '12px', padding: '12px 16px',
-              display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px',
+              background: '#F0FDF4', 
+              border: '1px solid #86EFAC',
+              borderRadius: '16px', 
+              padding: '16px 20px',
+              marginBottom: '20px',
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '14px',
             }}>
-              <span style={{ fontSize: '20px' }}>📱</span>
-              <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#15803D', fontFamily: "'DM Sans', sans-serif" }}>Paga con Yape</div>
-                <div style={{ fontSize: '12px', color: '#16A34A', fontFamily: "'DM Sans', sans-serif" }}>Ahorra S/5 en tu pedido</div>
+              <div style={{
+                width: '52px',
+                height: '32px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Image
+                  src="/img/yapeLogo.png"
+                  alt="Yape"
+                  width={52}
+                  height={22}
+                  style={{ objectFit: 'contain' }}
+                />
               </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: 700, 
+                  color: '#15803D', 
+                  fontFamily: "'DM Sans', sans-serif",
+                  marginBottom: '2px',
+                }}>
+                  Paga con Yape
+                </div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#16A34A', 
+                  fontFamily: "'DM Sans', sans-serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <span>Ahorra S/5 en tu pedido</span>
+                  <span style={{ 
+                    background: '#15803D', 
+                    color: '#fff', 
+                    padding: '2px 8px', 
+                    borderRadius: '100px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                  }}>-S/5</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total con Yape */}
+            <div style={{
+              background: '#F9FAFB',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <span style={{ fontSize: '13px', color: '#5a5a5a', fontFamily: "'DM Sans', sans-serif" }}>
+                Con Yape (ahorro S/5)
+              </span>
+              <span style={{ 
+                fontFamily: "'Bebas Neue', sans-serif", 
+                fontSize: '24px', 
+                color: '#15803D',
+                fontWeight: 600,
+              }}>
+                S/{totalWithYape}
+              </span>
             </div>
 
             <Link href="/checkout" style={{
@@ -242,6 +319,40 @@ export default function CarritoPage() {
             >
               Ir al checkout <ArrowRight size={16} />
             </Link>
+
+            {/* WhatsApp Link */}
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                background: '#25D366',
+                color: '#fff',
+                padding: '14px',
+                borderRadius: '100px',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '13px',
+                marginBottom: '12px',
+                fontFamily: "'DM Sans', sans-serif",
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'scale(1.02)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,211,102,0.4)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <MessageCircle size={16} />
+              Coordinar por WhatsApp
+            </a>
 
             <Link href="/productos" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
