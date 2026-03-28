@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useCartStore } from '@/store/cartStore'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Check, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -23,34 +24,34 @@ export default function CheckoutPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-const handleMP = async () => {
-  setLoading(true)
-  try {
-    const res = await fetch('/api/crear-preferencia', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        items,
-        email: form.email,
-        nombre: form.nombre,
-        telefono: form.telefono,
-        direccion: form.direccion,
-        ciudad: form.ciudad,
-        referencia: form.referencia,
+  const handleMP = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/crear-preferencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          email: form.email,
+          nombre: form.nombre,
+          telefono: form.telefono,
+          direccion: form.direccion,
+          ciudad: form.ciudad,
+          referencia: form.referencia,
+        })
       })
-    })
-    const data = await res.json()
-    if (data.init_point) {
-      clearCart()
-      window.location.href = data.init_point
+      const data = await res.json()
+      if (data.init_point) {
+        clearCart()
+        window.location.href = data.init_point
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error procesando pago. Intenta de nuevo.')
+    } finally {
+      setLoading(false)
     }
-  } catch (err) {
-    console.error(err)
-    alert('Error procesando pago. Intenta de nuevo.')
-  } finally {
-    setLoading(false)
   }
-}
 
   const handleYape = async () => {
     setLoading(true)
@@ -128,26 +129,103 @@ const handleMP = async () => {
               </div>
             </div>
 
-            {/* Método de pago */}
+            {/* Método de pago - CON IMÁGENES REALES */}
             <div style={{ background: '#fff', border: '1px solid #e8e6e1', borderRadius: '24px', padding: '32px' }}>
               <div style={{ fontFamily: 'Bebas Neue', fontSize: '24px', marginBottom: '24px' }}>MÉTODO DE PAGO</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { id: 'mp', emoji: '💳', title: 'Mercado Pago', desc: 'Tarjeta crédito/débito, cuotas sin interés' },
-                  { id: 'yape', emoji: '📱', title: 'Yape', desc: 'Transfiere al QR y ahorra S/5' },
-                ].map(m => (
-                  <div key={m.id} onClick={() => setPayMethod(m.id as any)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', borderRadius: '16px', border: `2px solid ${payMethod === m.id ? '#080808' : '#e8e6e1'}`, cursor: 'pointer', background: payMethod === m.id ? '#f2f1ef' : 'transparent', transition: 'all 0.2s' }}>
-                    <span style={{ fontSize: '28px' }}>{m.emoji}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: '14px' }}>{m.title}</div>
-                      <div style={{ fontSize: '12px', color: '#6b6760' }}>{m.desc}</div>
-                    </div>
-                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${payMethod === m.id ? '#080808' : '#e8e6e1'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {payMethod === m.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#080808' }} />}
-                    </div>
+                {/* Mercado Pago */}
+                <div onClick={() => setPayMethod('mp')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '16px 20px',
+                    borderRadius: '16px',
+                    border: `2px solid ${payMethod === 'mp' ? '#080808' : '#e8e6e1'}`,
+                    cursor: 'pointer',
+                    background: payMethod === 'mp' ? '#f2f1ef' : 'transparent',
+                    transition: 'all 0.2s'
+                  }}>
+                  <div style={{
+                    width: '48px',
+                    height: '32px',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Image
+                      src="/img/mercadoPagoLogo.png"
+                      alt="Mercado Pago"
+                      width={48}
+                      height={20}
+                      style={{ objectFit: 'contain' }}
+                    />
                   </div>
-                ))}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '14px' }}>Mercado Pago</div>
+                    <div style={{ fontSize: '12px', color: '#6b6760' }}>Tarjeta crédito/débito, cuotas sin interés</div>
+                  </div>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    border: `2px solid ${payMethod === 'mp' ? '#080808' : '#e8e6e1'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {payMethod === 'mp' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#080808' }} />}
+                  </div>
+                </div>
+
+                {/* Yape */}
+                <div onClick={() => setPayMethod('yape')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '16px 20px',
+                    borderRadius: '16px',
+                    border: `2px solid ${payMethod === 'yape' ? '#080808' : '#e8e6e1'}`,
+                    cursor: 'pointer',
+                    background: payMethod === 'yape' ? '#f2f1ef' : 'transparent',
+                    transition: 'all 0.2s'
+                  }}>
+                  <div style={{
+                    width: '48px',
+                    height: '32px',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Image
+                      src="/img/yapeLogo.png"
+                      alt="Yape"
+                      width={48}
+                      height={20}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '14px' }}>Yape</div>
+                    <div style={{ fontSize: '12px', color: '#6b6760' }}>Transfiere al QR y ahorra S/5</div>
+                  </div>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    border: `2px solid ${payMethod === 'yape' ? '#080808' : '#e8e6e1'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {payMethod === 'yape' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#080808' }} />}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -191,9 +269,39 @@ const handleMP = async () => {
             <button
               onClick={payMethod === 'mp' ? handleMP : handleYape}
               disabled={loading || !form.nombre || !form.email || !form.direccion}
-              style={{ width: '100%', background: loading ? '#b0aca4' : '#080808', color: '#fff', border: 'none', borderRadius: '100px', padding: '20px', fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontFamily: 'DM Sans, sans-serif', transition: 'background 0.3s' }}>
+              style={{
+                width: '100%',
+                background: loading ? '#b0aca4' : '#080808',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '100px',
+                padding: '20px',
+                fontSize: '15px',
+                fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                fontFamily: 'DM Sans, sans-serif',
+                transition: 'background 0.3s'
+              }}>
               {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Procesando...</> :
-                payMethod === 'mp' ? '💳 Pagar con Mercado Pago' : '📱 Continuar con Yape'}
+                payMethod === 'mp' ? (
+                  <>
+                    <div style={{ width: '20px', height: '20px', position: 'relative' }}>
+                      <Image src="/img/mercadoPagoLogo.png" alt="MP" width={20} height={20} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                    </div>
+                    Pagar con Mercado Pago
+                  </>
+                ) : (
+                  <>
+                    <div style={{ width: '20px', height: '20px', position: 'relative' }}>
+                      <Image src="/img/yapeLogo.png" alt="Yape" width={20} height={20} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                    </div>
+                    Continuar con Yape
+                  </>
+                )}
             </button>
             <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
