@@ -26,7 +26,7 @@ const NAV = {
   ],
 }
 
-// Solo métodos de pago reales que usas
+// Métodos de pago con logos reales
 const PAYMENT_METHODS = [
   { label: 'Yape', image: '/img/yapeLogo.png', width: 56, height: 24 },
   { label: 'Mercado Pago', image: '/img/mercadoPagoLogo.png', width: 64, height: 24 },
@@ -175,11 +175,46 @@ export default function Footer() {
         .footer-divider {
           border-top: 1px solid #eaeaea;
         }
+
+        /* WhatsApp Floating Button */
+        .floating-wa {
+          position: fixed;
+          bottom: 28px;
+          right: 28px;
+          z-index: 1000;
+          background: #25D366;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+          text-decoration: none;
+        }
+        .floating-wa:hover {
+          transform: scale(1.08);
+          box-shadow: 0 8px 24px rgba(37,211,102,0.35);
+        }
+        .floating-wa svg {
+          width: 28px;
+          height: 28px;
+          stroke: #ffffff;
+          stroke-width: 1.8;
+        }
         
         @media (max-width: 900px) {
           .footer-grid {
             grid-template-columns: 1fr 1fr !important;
             gap: 2rem !important;
+          }
+          .floating-wa {
+            bottom: 20px;
+            right: 20px;
+            width: 52px;
+            height: 52px;
           }
         }
         @media (max-width: 640px) {
@@ -194,8 +229,25 @@ export default function Footer() {
           .payment-strip {
             justify-content: center !important;
           }
+          .floating-wa {
+            bottom: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+          }
         }
       `}</style>
+
+      {/* WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/51999999999?text=Hola%20VidaSmart%2C%20me%20interesa%20un%20producto"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="floating-wa"
+        aria-label="WhatsApp"
+      >
+        <MessageCircle />
+      </a>
 
       <footer ref={footerRef} style={{ background: '#fafaf8', borderTop: '1px solid #efefef' }}>
         
@@ -521,6 +573,7 @@ export default function Footer() {
                       height: method.height,
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                     }}>
                       <Image
                         src={method.image}

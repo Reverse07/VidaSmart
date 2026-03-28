@@ -300,7 +300,7 @@ export default function Navbar() {
               />
             </span>
             <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.03em' }}>
-              +51 999 999 999
+              +51 992 550 179
             </span>
           </span>
           
