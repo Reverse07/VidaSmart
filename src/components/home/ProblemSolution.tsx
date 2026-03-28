@@ -17,6 +17,7 @@ const ITEMS = [
     emoji: '🖱️',
     image: '/img/ATK BLUE F1 LEVIATAN/ATK BLUE F1 LEVIATAN_img1.jpg',
     price: 375,
+    imageBg: 'dark', // para gaming: fondo oscuro
   },
   {
     num: '02',
@@ -29,6 +30,7 @@ const ITEMS = [
     emoji: '💧',
     image: '/img/Fuente de agua Petkit Eversweet SOLO – Blanco/Fuente de agua Petkit Eversweet SOLO – Blanco_img1.webp',
     price: 159,
+    imageBg: 'light',
   },
   {
     num: '03',
@@ -41,6 +43,7 @@ const ITEMS = [
     emoji: '✨',
     image: '/img/TIRAS LED GAMING/Tira Led Inteligente_img1.webp',
     price: 390,
+    imageBg: 'light',
   },
   {
     num: '04',
@@ -53,6 +56,7 @@ const ITEMS = [
     emoji: '💡',
     image: '/img/FOCOS WIFI RGB/Focos WiFi RGB_Img1.webp',
     price: 65,
+    imageBg: 'light',
   },
   {
     num: '05',
@@ -65,6 +69,7 @@ const ITEMS = [
     emoji: '⌨️',
     image: '/img/AULA HERO 68HE/AULA HERO 68HE_img1.jpg',
     price: 288,
+    imageBg: 'dark',
   },
   {
     num: '06',
@@ -77,6 +82,7 @@ const ITEMS = [
     emoji: '🐱',
     image: '/img/Rascador Salem cat/Rascador Salem cat_img1.webp',
     price: 399,
+    imageBg: 'light',
   },
 ]
 
@@ -88,7 +94,6 @@ export default function ProblemSolution() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const progressRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true) },
@@ -98,10 +103,9 @@ export default function ProblemSolution() {
     return () => observer.disconnect()
   }, [])
 
-  // Auto-cycle through items every 5s
   useEffect(() => {
-    const tick = 50 // ms per progress tick
-    const total = 5000 // ms total
+    const tick = 50
+    const total = 5000
 
     const startCycle = () => {
       setProgress(0)
@@ -148,7 +152,6 @@ export default function ProblemSolution() {
         .ps-d2 { transition-delay: 0.15s; }
         .ps-d3 { transition-delay: 0.25s; }
 
-        /* ── ROW ── */
         .ps-row {
           display: flex;
           align-items: flex-start;
@@ -168,7 +171,6 @@ export default function ProblemSolution() {
           box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
 
-        /* ── NUMBER ── */
         .ps-num {
           font-family: 'Bebas Neue', sans-serif;
           font-size: 12px;
@@ -180,7 +182,6 @@ export default function ProblemSolution() {
         }
         .ps-row.ps-active .ps-num { color: #A09890; }
 
-        /* ── PROGRESS BAR ── */
         .ps-progress {
           position: absolute;
           bottom: 0; left: 0;
@@ -189,7 +190,6 @@ export default function ProblemSolution() {
           transition: none;
         }
 
-        /* ── VISUAL PANEL ── */
         .ps-visual {
           border-radius: 28px;
           position: relative;
@@ -197,25 +197,36 @@ export default function ProblemSolution() {
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 500px;
+          min-height: 520px;
           transition: background 0.6s ease;
         }
 
-        /* ── IMAGE FLOAT ── */
         @keyframes imageFloat {
           0%, 100% { transform: translateY(0); }
           50%       { transform: translateY(-8px); }
         }
+        
         .ps-product-image {
           animation: imageFloat 5s ease-in-out infinite;
-          width: 70%;
-          max-width: 280px;
+          width: 75%;
+          max-width: 320px;
           height: auto;
-          filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+          filter: drop-shadow(0 20px 25px rgba(0,0,0,0.15));
           transition: all 0.4s ease;
+          position: relative;
+          z-index: 2;
+        }
+        
+        /* Para imágenes con fondo oscuro (gaming) */
+        .ps-product-image.dark-bg {
+          filter: drop-shadow(0 20px 25px rgba(139,92,246,0.3));
+        }
+        
+        /* Para imágenes con fondo claro */
+        .ps-product-image.light-bg {
+          filter: drop-shadow(0 20px 25px rgba(0,0,0,0.1));
         }
 
-        /* ── CONTENT SWAP ── */
         @keyframes contentIn {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -224,7 +235,6 @@ export default function ProblemSolution() {
           animation: contentIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
 
-        /* ── BADGE ── */
         .ps-badge {
           display: inline-flex;
           align-items: center;
@@ -237,9 +247,9 @@ export default function ProblemSolution() {
           text-transform: uppercase;
           margin-bottom: 16px;
           font-weight: 500;
+          backdrop-filter: blur(4px);
         }
 
-        /* ── PRICE TAG ── */
         .ps-price {
           font-family: 'Bebas Neue', sans-serif;
           font-size: 32px;
@@ -247,7 +257,6 @@ export default function ProblemSolution() {
           margin-top: 12px;
         }
 
-        /* ── CTA ── */
         .ps-cta {
           display: inline-flex;
           align-items: center;
@@ -270,16 +279,15 @@ export default function ProblemSolution() {
         }
         .ps-cta:hover svg { transform: translateX(4px); }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
           .ps-grid { grid-template-columns: 1fr !important; }
-          .ps-visual { min-height: 380px; }
+          .ps-visual { min-height: 400px; }
           .ps-sticky { position: static !important; }
-          .ps-product-image { width: 50%; }
+          .ps-product-image { width: 55%; max-width: 240px; }
         }
 
         @media (max-width: 640px) {
-          .ps-product-image { width: 60%; }
+          .ps-product-image { width: 65%; }
         }
       `}</style>
 
@@ -334,10 +342,7 @@ export default function ProblemSolution() {
                     onClick={() => handleSelect(i)}
                     style={{ color: item.color }}
                   >
-                    {/* Number */}
                     <span className="ps-num">{item.num}</span>
-
-                    {/* Text */}
                     <div style={{ flex: 1 }}>
                       <p style={{
                         fontSize: '12px', color: '#B0ACA4',
@@ -381,8 +386,6 @@ export default function ProblemSolution() {
                         </>
                       )}
                     </div>
-
-                    {/* Emoji indicator */}
                     <span style={{
                       fontSize: '24px',
                       opacity: activeItem === i ? 1 : 0.3,
@@ -391,7 +394,6 @@ export default function ProblemSolution() {
                       flexShrink: 0,
                     }}>{item.emoji}</span>
 
-                    {/* Progress bar */}
                     {activeItem === i && (
                       <div
                         className="ps-progress"
@@ -422,13 +424,15 @@ export default function ProblemSolution() {
                   position: 'absolute', inset: 0,
                   backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0)',
                   backgroundSize: '24px 24px',
+                  pointerEvents: 'none',
                 }} />
 
                 {/* Ambient glow */}
                 <div style={{
                   position: 'absolute', inset: 0,
-                  background: `radial-gradient(ellipse at 50% 40%, ${active.color}15, transparent 70%)`,
+                  background: `radial-gradient(ellipse at 50% 40%, ${active.color}12, transparent 70%)`,
                   transition: 'background 0.6s ease',
+                  pointerEvents: 'none',
                 }} />
 
                 {/* Content */}
@@ -442,12 +446,16 @@ export default function ProblemSolution() {
                     padding: '40px 32px',
                   }}
                 >
-                  {/* Product Image */}
+                  {/* Product Image - SIN FONDO BLANCO */}
                   {active.image ? (
                     <img
                       src={active.image}
                       alt={active.solution}
-                      className="ps-product-image"
+                      className={`ps-product-image ${active.imageBg === 'dark' ? 'dark-bg' : 'light-bg'}`}
+                      style={{
+                        // Elimina cualquier fondo blanco que pudiera tener la imagen
+                        mixBlendMode: active.imageBg === 'dark' ? 'normal' : 'multiply',
+                      }}
                     />
                   ) : (
                     <div className="ps-emoji" style={{ fontSize: '80px' }}>{active.emoji}</div>
@@ -457,9 +465,9 @@ export default function ProblemSolution() {
                   <div
                     className="ps-badge"
                     style={{
-                      background: `${active.color}15`,
+                      background: `${active.color}12`,
                       color: active.color,
-                      border: `1px solid ${active.color}25`,
+                      border: `1px solid ${active.color}20`,
                       marginTop: '24px',
                     }}
                   >
@@ -513,9 +521,10 @@ export default function ProblemSolution() {
                 <div style={{
                   position: 'absolute', bottom: '20px', right: '24px',
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '72px', color: `${active.color}12`,
+                  fontSize: '72px', color: `${active.color}0C`,
                   lineHeight: 1, userSelect: 'none',
                   transition: 'color 0.6s ease',
+                  pointerEvents: 'none',
                 }}>
                   {active.num}
                 </div>
