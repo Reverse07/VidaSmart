@@ -26,11 +26,11 @@ const NAV = {
   ],
 }
 
-// Métodos de pago con logos reales
+// Métodos de pago - WhatsApp ahora usa solo el icono
 const PAYMENT_METHODS = [
   { label: 'Yape', image: '/img/yapeLogo.png', width: 56, height: 24 },
   { label: 'Mercado Pago', image: '/img/mercadoPagoLogo.png', width: 64, height: 24 },
-  { label: 'WhatsApp', image: '/img/whatsappLogo.jpg', width: 56, height: 24, isRounded: true },
+  { label: 'WhatsApp', icon: <MessageCircle size={14} />, color: '#25D366' },
 ]
 
 export default function Footer() {
@@ -238,7 +238,7 @@ export default function Footer() {
         }
       `}</style>
 
-      {/* WhatsApp Floating Button */}
+      {/* WhatsApp Floating Button - solo icono */}
       <a
         href="https://wa.me/51999999999?text=Hola%20VidaSmart%2C%20me%20interesa%20un%20producto"
         target="_blank"
@@ -546,7 +546,7 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Bottom bar con métodos de pago */}
+        {/* Bottom bar con métodos de pago - WhatsApp ahora con icono */}
         <div className="footer-divider">
           <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 48px' }}>
             <div className="footer-bottom" style={{
@@ -567,25 +567,26 @@ export default function Footer() {
               <div className="payment-strip" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {PAYMENT_METHODS.map(method => (
                   <div key={method.label} className="payment-badge">
-                    <div style={{
-                      position: 'relative',
-                      width: method.width,
-                      height: method.height,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Image
-                        src={method.image}
-                        alt={method.label}
-                        width={method.width}
-                        height={method.height}
-                        style={{
-                          objectFit: 'contain',
-                          borderRadius: method.isRounded ? '4px' : '0',
-                        }}
-                      />
-                    </div>
+                    {method.image ? (
+                      <div style={{
+                        position: 'relative',
+                        width: method.width,
+                        height: method.height,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        <Image
+                          src={method.image}
+                          alt={method.label}
+                          width={method.width}
+                          height={method.height}
+                          style={{ objectFit: 'contain' }}
+                        />
+                      </div>
+                    ) : (
+                      <span style={{ color: method.color }}>{method.icon}</span>
+                    )}
                     <span>{method.label}</span>
                   </div>
                 ))}
