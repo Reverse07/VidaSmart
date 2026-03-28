@@ -105,7 +105,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
     gaming: {
       title: '🎮 Periféricos Gaming',
       time: '10 - 18 días hábiles',
-      description: 'Productos de alta calidad importados. Entregamos en todo el Perú con seguimiento en línea.'
+      description: 'Productos de alta calidad. Entregamos en todo el Perú con seguimiento en línea.'
     },
     tech: {
       title: '⚡ Tecnología Smart Home',
