@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import React from 'react'
 import Image from 'next/image'
-import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Check, Shield, Truck, Headphones, Star, Plus, Minus, Play, Gamepad2, Zap, PawPrint, MessageCircle, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { supabase } from '@/lib/supabase'
@@ -27,7 +27,7 @@ function isVideo(src: string) {
 export default function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug }        = React.use(params)
   const [qty, setQty]   = useState(1)
-  const [activeTab, setActiveTab]     = useState<'specs' | 'reviews' | 'faq'>('specs')
+  const [activeTab, setActiveTab]     = useState<'specs' | 'shipping' | 'faq'>('specs')
   const [added, setAdded]             = useState(false)
   const [product, setProduct]         = useState<any>(null)
   const [loading, setLoading]         = useState(true)
@@ -99,6 +99,32 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
   const zoomImgTop  = -(zoomPos.y * (ZOOM - 1) * ZOOM_PANEL)
 
   const benefits = ['Alta calidad premium', 'Garantía 30 días', 'Envío a todo Perú', 'Soporte por WhatsApp']
+
+  // Tiempos de entrega por categoría
+  const shippingInfo = {
+    gaming: {
+      title: '🎮 Periféricos Gaming',
+      time: '10 - 18 días hábiles',
+      description: 'Productos de alta calidad importados. Entregamos en todo el Perú con seguimiento en línea.'
+    },
+    tech: {
+      title: '⚡ Tecnología Smart Home',
+      time: '12 - 20 días hábiles',
+      description: 'Dispositivos inteligentes de última generación. Envío asegurado con número de tracking.'
+    },
+    mascotas: {
+      title: '🐾 Accesorios para Mascotas',
+      time: '10 - 15 días hábiles',
+      description: 'Productos premium para el bienestar de tu mascota. Entregas rápidas y seguras.'
+    },
+    default: {
+      title: '📦 Envío Nacional',
+      time: '8 - 15 días hábiles',
+      description: 'Entregamos a todo el Perú con total transparencia y seguimiento.'
+    }
+  }
+
+  const currentShipping = shippingInfo[product.category as keyof typeof shippingInfo] || shippingInfo.default
 
   return (
     <>
@@ -465,7 +491,78 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
               </button>
             </div>
 
-            {/* YAPE PROMO SECTION - CON IMAGEN REAL DE YAPE */}
+            {/* Shipping Info */}
+            <div style={{
+              background: isDark ? 'rgba(139,92,246,0.08)' : '#f8fafc',
+              border: `1px solid ${isDark ? 'rgba(139,92,246,0.2)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '16px 20px',
+              marginBottom: '20px',
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '12px',
+              }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: isDark ? 'rgba(139,92,246,0.15)' : '#e6f7e6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <Truck size={18} color={isDark ? '#A78BFA' : '#15803d'} />
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: isDark ? '#C4B5FD' : '#1e293b',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    {currentShipping.title}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: isDark ? '#9F7AEA' : '#475569',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    Entregamos en todo el Perú
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                paddingTop: '8px',
+                borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.1)' : '#e2e8f0'}`,
+              }}>
+                <Clock size={14} color={isDark ? '#A78BFA' : '#15803d'} />
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: isDark ? '#C4B5FD' : '#0f172a',
+                  fontFamily: "'DM Mono', monospace",
+                }}>
+                  Tiempo de entrega: {currentShipping.time}
+                </span>
+              </div>
+              <p style={{
+                fontSize: '11px',
+                color: isDark ? '#6B5B8A' : '#64748b',
+                marginTop: '8px',
+                fontFamily: "'DM Sans', sans-serif",
+                lineHeight: 1.4,
+              }}>
+                {currentShipping.description}
+              </p>
+            </div>
+
+            {/* YAPE PROMO SECTION */}
             <div style={{
               background: isDark ? 'rgba(34,197,94,0.08)' : '#f0fdf4',
               border: isDark ? '1px solid rgba(34,197,94,0.2)' : '1px solid #86efac',
@@ -523,7 +620,7 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
           </div>
         </div>
 
-        {/* ── TABS ── */}
+        {/* ── TABS (con Shipping incluido) ── */}
         <div style={{
           maxWidth: '1300px', margin: '0 auto', padding: '0 48px 80px',
           borderTop: `1px solid ${isDark ? 'rgba(139,92,246,0.12)' : '#e8e6e1'}`,
@@ -532,13 +629,13 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
             borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.12)' : '#e8e6e1'}`,
             marginBottom: '40px', display: 'flex',
           }}>
-            {(['specs', 'reviews', 'faq'] as const).map(tab => (
+            {(['specs', 'shipping', 'faq'] as const).map(tab => (
               <button key={tab} className="pd-tab" onClick={() => setActiveTab(tab)} style={{
                 fontFamily: "'DM Mono', monospace",
                 borderBottom: `2px solid ${activeTab === tab ? cat.accent : 'transparent'}`,
                 color: activeTab === tab ? (isDark ? '#C4B5FD' : '#080808') : (isDark ? '#6B5B8A' : '#6b6760'),
               }}>
-                {tab === 'specs' ? 'Especificaciones' : tab === 'reviews' ? 'Opiniones' : 'FAQ'}
+                {tab === 'specs' ? 'Especificaciones' : tab === 'shipping' ? 'Envío' : 'FAQ'}
               </button>
             ))}
           </div>
@@ -563,18 +660,139 @@ export default function ProductoPage({ params }: { params: Promise<{ slug: strin
             </div>
           )}
 
-          {activeTab === 'reviews' && (
-            <p style={{ color: isDark ? '#6B5B8A' : '#6b6760', fontFamily: "'DM Mono', monospace", fontSize: '12px' }}>
-              Aún no hay reseñas. ¡Sé el primero en opinar!
-            </p>
+          {activeTab === 'shipping' && (
+            <div style={{ maxWidth: '700px' }}>
+              <div style={{
+                background: isDark ? 'rgba(139,92,246,0.05)' : '#f8fafc',
+                borderRadius: '20px',
+                padding: '28px',
+                marginBottom: '24px',
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '20px',
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '24px',
+                    background: isDark ? 'rgba(139,92,246,0.15)' : '#e6f7e6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <Truck size={24} color={isDark ? '#A78BFA' : '#15803d'} />
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      color: isDark ? '#F3F0FF' : '#0f172a',
+                      fontFamily: "'Bebas Neue', sans-serif",
+                    }}>
+                      INFORMACIÓN DE ENVÍO
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: isDark ? '#9F7AEA' : '#475569',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>
+                      Entregas en todo el territorio nacional
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}>
+                  <div style={{
+                    padding: '12px 16px',
+                    background: isDark ? 'rgba(139,92,246,0.08)' : '#ffffff',
+                    borderRadius: '12px',
+                    border: `1px solid ${isDark ? 'rgba(139,92,246,0.15)' : '#e2e8f0'}`,
+                  }}>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: isDark ? '#C4B5FD' : '#1e293b',
+                      marginBottom: '8px',
+                    }}>
+                      ⏱️ Tiempo de entrega estimado
+                    </div>
+                    <div style={{
+                      fontSize: '13px',
+                      color: isDark ? '#9F7AEA' : '#334155',
+                    }}>
+                      {currentShipping.time}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      color: isDark ? '#6B5B8A' : '#64748b',
+                      marginTop: '6px',
+                    }}>
+                      *Desde la confirmación del pago hasta la entrega en tu domicilio
+                    </div>
+                  </div>
+
+                  <div style={{
+                    padding: '12px 16px',
+                    background: isDark ? 'rgba(139,92,246,0.08)' : '#ffffff',
+                    borderRadius: '12px',
+                    border: `1px solid ${isDark ? 'rgba(139,92,246,0.15)' : '#e2e8f0'}`,
+                  }}>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: isDark ? '#C4B5FD' : '#1e293b',
+                      marginBottom: '8px',
+                    }}>
+                      📍 Seguimiento del pedido
+                    </div>
+                    <div style={{
+                      fontSize: '13px',
+                      color: isDark ? '#9F7AEA' : '#334155',
+                    }}>
+                      Recibirás un número de tracking por WhatsApp una vez enviado tu pedido
+                    </div>
+                  </div>
+
+                  <div style={{
+                    padding: '12px 16px',
+                    background: isDark ? 'rgba(139,92,246,0.08)' : '#ffffff',
+                    borderRadius: '12px',
+                    border: `1px solid ${isDark ? 'rgba(139,92,246,0.15)' : '#e2e8f0'}`,
+                  }}>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: isDark ? '#C4B5FD' : '#1e293b',
+                      marginBottom: '8px',
+                    }}>
+                      📦 Zonas de cobertura
+                    </div>
+                    <div style={{
+                      fontSize: '13px',
+                      color: isDark ? '#9F7AEA' : '#334155',
+                    }}>
+                      Lima Metropolitana y provincias (envío a todo el Perú)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {activeTab === 'faq' && (
             <div style={{ maxWidth: '700px' }}>
               {[
-                { q: '¿Cuánto demora el envío?', a: 'Lima 2-3 días hábiles. Provincias 5-7 días hábiles.' },
+                { q: '¿Cuánto demora el envío?', a: `Lima 2-3 días hábiles. Provincias ${currentShipping.time.includes('10') ? '8-15' : '10-18'} días hábiles aproximadamente.` },
                 { q: '¿Puedo devolver el producto?', a: '30 días de garantía de devolución sin preguntas.' },
-                { q: '¿Cómo pago con Yape?', a: 'Selecciona Yape en el checkout y te enviamos el QR por WhatsApp.' },
+                { q: '¿Cómo pago con Yape?', a: 'Selecciona Yape en el checkout y te enviamos el QR por WhatsApp para pagar y ahorrar S/5.' },
+                { q: '¿Recibo número de seguimiento?', a: 'Sí, una vez enviado tu pedido te compartimos el número de tracking por WhatsApp para que puedas rastrearlo.' },
               ].map(f => (
                 <div key={f.q} style={{ padding: '24px 0', borderBottom: `1px solid ${isDark ? 'rgba(139,92,246,0.10)' : '#e8e6e1'}` }}>
                   <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: isDark ? '#F3F0FF' : '#080808', fontFamily: "'DM Sans', sans-serif" }}>{f.q}</div>
