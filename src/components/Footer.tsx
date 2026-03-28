@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Zap, PawPrint, Gamepad2, MapPin, Mail, Phone } from 'lucide-react'
+import { ArrowRight, Zap, PawPrint, Gamepad2, MapPin, Mail, Phone, MessageCircle } from 'lucide-react'
 
 const NAV = {
   tienda: [
@@ -20,11 +21,13 @@ const NAV = {
   ],
 }
 
+// MÉTODOS DE PAGO CON LOGOS REALES
 const PAYMENT_METHODS = [
-  { label: 'Yape', emoji: '📱' },
-  { label: 'MP',   emoji: '💳' },
+  { label: 'Yape', image: '/img/yapeLogo.png', width: 48, height: 20 },
+  { label: 'Plin', image: '/img/yapeLogo.png', width: 48, height: 20 },
+  { label: 'Mercado Pago', image: '/img/mercadoPagoLogo.png', width: 56, height: 20 },
   { label: 'Visa', emoji: '💳' },
-  { label: 'MC',   emoji: '💳' },
+  { label: 'Mastercard', emoji: '💳' },
 ]
 
 export default function Footer() {
@@ -105,11 +108,11 @@ export default function Footer() {
         .ft-email-btn:hover { background: #8B5CF6; }
 
         .ft-payment {
-          display: inline-flex; align-items: center; gap: 5px;
-          padding: 5px 12px; background: #fff;
-          border: 1px solid #E2DED8; border-radius: 8px;
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 6px 14px; background: #fff;
+          border: 1px solid #E2DED8; border-radius: 10px;
           font-family: 'DM Mono', monospace; font-size: 10px;
-          letter-spacing: 0.06em; color: #7A7269;
+          letter-spacing: 0.04em; color: #7A7269;
           transition: all 0.2s ease;
         }
         .ft-payment:hover {
@@ -117,30 +120,37 @@ export default function Footer() {
           box-shadow: 0 2px 8px rgba(0,0,0,0.06);
           transform: translateY(-1px);
         }
+        .ft-payment-image {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+        }
 
         .ft-social {
           width: 38px; height: 38px; border-radius: 10px;
           border: 1px solid #E2DED8; background: transparent;
           display: flex; align-items: center; justify-content: center;
-          font-size: 16px; cursor: pointer;
+          font-size: 18px; cursor: pointer;
           transition: all 0.2s ease; text-decoration: none;
+          color: #7A7269;
         }
         .ft-social:hover {
           border-color: #C8C3BB; background: #fff;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          color: #080808;
         }
 
         .ft-wa {
-          display: inline-flex; align-items: center; gap: 8px;
+          display: inline-flex; align-items: center; gap: 10px;
           background: #25D366; color: #fff;
-          padding: 11px 22px; border-radius: 100px;
+          padding: 10px 22px; border-radius: 100px;
           text-decoration: none;
           font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
           transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
           border: none; cursor: pointer;
         }
-        .ft-wa:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(37,211,102,0.35); }
+        .ft-wa:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
 
         .ft-bottom-link {
           font-family: 'DM Mono', monospace; font-size: 11px;
@@ -153,6 +163,7 @@ export default function Footer() {
         @media (max-width: 600px) {
           .ft-main-grid { grid-template-columns: 1fr !important; }
           .ft-bottom { flex-direction: column !important; gap: 16px !important; text-align: center; }
+          .ft-payment-methods { justify-content: center !important; }
         }
       `}</style>
 
@@ -262,7 +273,7 @@ export default function Footer() {
               </div>
 
               <a href="https://wa.me/51XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="ft-wa">
-                <span style={{ fontSize: '16px' }}>💬</span>
+                <MessageCircle size={18} strokeWidth={1.8} />
                 Escríbenos por WhatsApp
               </a>
             </div>
@@ -304,7 +315,7 @@ export default function Footer() {
               }}>Contacto</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
                 {[
-                  { icon: <Phone size={13} />, text: '+51 XXX XXX XXX', href: 'tel:+51XXXXXXXXX' },
+                  { icon: <Phone size={13} />, text: '+51 999 999 999', href: 'tel:+51999999999' },
                   { icon: <Mail size={13} />,  text: 'hola@vidasmart.pe', href: 'mailto:hola@vidasmart.pe' },
                   { icon: <MapPin size={13} />, text: 'Lima, Perú', href: '#' },
                 ].map(c => (
@@ -322,9 +333,15 @@ export default function Footer() {
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                {[{ emoji: '📸', label: 'Instagram' }, { emoji: '🎵', label: 'TikTok' }, { emoji: '👥', label: 'Facebook' }].map(s => (
-                  <a key={s.label} href="#" className="ft-social" aria-label={s.label}>{s.emoji}</a>
-                ))}
+                <a href="#" className="ft-social" aria-label="Instagram">
+                  <span>📸</span>
+                </a>
+                <a href="#" className="ft-social" aria-label="TikTok">
+                  <span>🎵</span>
+                </a>
+                <a href="#" className="ft-social" aria-label="Facebook">
+                  <span>👥</span>
+                </a>
               </div>
             </div>
           </div>
@@ -341,15 +358,31 @@ export default function Footer() {
               fontFamily: "'DM Mono', monospace", fontSize: '11px',
               color: '#C8C3BB', letterSpacing: '0.06em',
             }}>© 2026 VidaSmart · Lima, Perú</span>
+            
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
               {['Términos', 'Privacidad', 'Cookies'].map(t => (
                 <Link key={t} href="#" className="ft-bottom-link">{t}</Link>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+            
+            {/* Payment methods con logos reales */}
+            <div className="ft-payment-methods" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               {PAYMENT_METHODS.map(p => (
                 <div key={p.label} className="ft-payment">
-                  <span>{p.emoji}</span>{p.label}
+                  {p.image ? (
+                    <div className="ft-payment-image">
+                      <Image 
+                        src={p.image} 
+                        alt={p.label} 
+                        width={p.width} 
+                        height={p.height}
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </div>
+                  ) : (
+                    <span>{p.emoji}</span>
+                  )}
+                  <span style={{ marginLeft: p.image ? '4px' : '0' }}>{p.label}</span>
                 </div>
               ))}
             </div>
